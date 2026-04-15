@@ -1,0 +1,70 @@
+Raw rows: 16251 
+Rows with unparseable Date: 0 
+After date filter: 13669 
+
+Rows excluded by compliance filter:
+  Initial.Machinery.Compliance   n
+1                      No NRMM 733
+2                Site Complete 664
+3                   Baselining 254
+4               DECLINED AUDIT  67
+5                Site complete  34
+6            Removed from site  23
+7                                4
+Total excluded: 1779 
+After compliance filter: 11890 
+
+Rows excluded by zone filter:
+  Zone.clean n
+1        P24 5
+Total excluded: 5 
+After zone filter: 11885 
+Engine Type overridden to Constant (generator-family Machine Types): 1316 
+Engine Type filled blank → Variable (remaining blanks): NA 
+
+Rows excluded — unassignable Engine Type:
+  Engine.Type.clean   n
+1      Unidentified 419
+2          Electric   3
+3              <NA>   3
+4    Not applicable   2
+5   [Not Specified]   1
+Total excluded: 428 
+After group assignment: 11457 
+Rows with missing/non-numeric kW (kept, flagged): 612 
+Rows excluded — numeric kW outside 37–560: 14 
+After kW scope filter: 11443 
+
+ZE / Electric records extracted (n_ze): 0 
+Rows with unresolvable Initial Stage (dropped): 502 
+After ZE/stage filter: 10941 
+
+Cold-Engaged: Yes = 1847 | No = 9094 
+COVID-exempt records excluded: 192 
+After COVID filter: 10749 
+
+Phase distribution:
+
+  A1   A2    B 
+1042 2608 7099 
+
+Enforcement upgrades observed: 35 
+
+Final — Cold: 1815 | Warm: 8934 
+
+Warm fleet — Group × Phase:
+                
+                   A1   A2    B
+  CAZ_Plus        349  589 2051
+  Constant_Speed   88  270  593
+  Rest_of_London  450 1346 3198
+
+Cold fleet — Group × Phase:
+                
+                  A1  A2   B
+  CAZ_Plus        51  69 241
+  Constant_Speed  16  46  99
+  Rest_of_London  88 288 917
+
+Saved: 260329_step1_ingestion.RData
+Objects: df_raw, df, df_cold, df_warm, df_ze, n_ze

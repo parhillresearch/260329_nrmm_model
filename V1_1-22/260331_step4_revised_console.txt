@@ -1,0 +1,179 @@
+MC field coverage:
+  df:      n=10749  compliant=6791  non-compliant=3958  other=0
+  df_warm: n=8934  compliant=6289  non-compliant=2645
+  df_cold: n=1815  compliant=502  non-compliant=1313
+
+══ STREAM A λ_CF — Binary compliance (cold fleet) ══
+
+─ Phase A1/A2 — Variable Speed pooled ─
+# A tibble: 5 × 3
+   time   p_c n_total
+  <dbl> <dbl>   <int>
+1  2016 0.857      21
+2  2017 0.791      43
+3  2018 0.8        75
+4  2019 0.902     215
+5  2020 0.880     142
+  A1/A2 cold var-speed pooled                                   λ =  0.1299  SE = 0.1975  95% CI [-0.2573,  0.5171]
+
+─ Constant_Speed Phase A (2017-2020, threshold = IIIA) ─
+# A tibble: 4 × 3
+   time   p_c n_total
+  <dbl> <dbl>   <int>
+1  2017 0.429       7
+2  2018 0.667       9
+3  2019 0.757      37
+4  2020 0.556       9
+  CS Phase A cold (IIIA threshold)                              λ = -0.1074  SE = 0.4171  95% CI [-0.9248,  0.7100]
+
+─ Constant_Speed Phase B (2021-2023, threshold = V) ─
+# A tibble: 3 × 3
+   time   p_c n_total
+  <dbl> <dbl>   <int>
+1  2021     0      25
+2  2022     0      19
+3  2023     0       9
+  CS Phase B (V threshold): λ = 0.0000 (no Stage V in cold CS 2021-2023)
+
+─ CAZ+ Phase B — 3-segment (threshold = IV) ─
+# A tibble: 3 × 4
+    seg   p_c n_total  time
+  <int> <dbl>   <int> <dbl>
+1     1 0.667      81 2021.
+2     2 0.787      75 2023.
+3     3 0.765      85 2024.
+  CAZ+ Phase B cold 3-seg (IV threshold)                        λ =  0.1613  SE = 0.1432  95% CI [-0.1193,  0.4419]
+
+─ Rest_of_London Phase B — 3-segment (threshold = IIIB) ─
+# A tibble: 3 × 4
+    seg   p_c n_total  time
+  <int> <dbl>   <int> <dbl>
+1     1 0.919     360 2021.
+2     2 0.921     291 2023.
+3     3 0.959     266 2024.
+  RoL Phase B cold 3-seg (IIIB threshold)                       λ =  0.1516  SE = 0.1571  95% CI [-0.1563,  0.4596]
+
+══ STREAM A λ_Policy — Binary compliance (compliant-warm subset) ══
+   [Warm records where Initial.Machinery.Compliance == 'compliant' only]
+
+  Compliant-warm subset: n = 6289 (of 8934 warm total, 70.4%)
+
+─ Phase A1/A2 — Variable Speed pooled (compliant-warm) ─
+# A tibble: 5 × 3
+   time   p_c n_total
+  <dbl> <dbl>   <int>
+1  2016 0.879      33
+2  2017 0.954     302
+3  2018 0.952     373
+4  2019 0.980     944
+5  2020 0.984     442
+  A1/A2 compliant-warm var-speed pooled                         λ =  0.3609  SE = 0.1621  95% CI [ 0.0432,  0.6785]
+
+─ Constant_Speed Phase A (compliant-warm, threshold = IIIA) ─
+# A tibble: 4 × 3
+   time   p_c n_total
+  <dbl> <dbl>   <int>
+1  2017 1          24
+2  2018 1          35
+3  2019 0.978      93
+4  2020 1          42
+  CS Phase A compliant-warm (IIIA threshold)                    λ =  1.0000  SE = 0.4338  95% CI [ 0.1498,  1.8502]
+
+─ Constant_Speed Phase B (compliant-warm, threshold = V) ─
+# A tibble: 4 × 3
+   time    p_c n_total
+  <dbl>  <dbl>   <int>
+1  2021 0           63
+2  2022 0.0893      56
+3  2023 0.233       60
+4  2024 0.781       73
+  CS Phase B compliant-warm (V threshold)                       λ =  0.2637  SE = 0.1820  95% CI [-0.0931,  0.6204]
+
+─ CAZ+ Phase B (compliant-warm, 3-segment, threshold = IV) ─
+# A tibble: 3 × 4
+    seg   p_c n_total  time
+  <int> <dbl>   <int> <dbl>
+1     1 0.840     363 2021.
+2     2 0.965     430 2023.
+3     3 0.987     623 2024.
+  CAZ+ Phase B compliant-warm 3-seg (IV threshold)              λ =  0.5361  SE = 0.0236  95% CI [ 0.4899,  0.5823]
+
+─ Rest_of_London Phase B (compliant-warm, 3-segment, threshold = IIIB) ─
+# A tibble: 3 × 4
+    seg   p_c n_total  time
+  <int> <dbl>   <int> <dbl>
+1     1 0.990     669 2021.
+2     2 0.993     690 2023.
+3     3 0.999     939 2024.
+  RoL Phase B compliant-warm 3-seg (IIIB threshold)             λ =  0.3378  SE = 0.1773  95% CI [-0.0098,  0.6854]
+
+══ ENFORCEMENT RATE (ē) — v1.18: Stage-threshold, all records ══
+   [Initial.Stage < threshold / n_all per group × phase]
+
+           Group Phase n_all n_cold n_warm n_stage_nc      e_bar
+1 Constant_Speed    A1   104     16     88         23 0.22115385
+2 Constant_Speed    A2   316     46    270         46 0.14556962
+3 Constant_Speed     B   692     99    593        573 0.82803468
+4       CAZ_Plus    A1   400     51    349         81 0.20250000
+5       CAZ_Plus    A2   658     69    589         74 0.11246201
+6       CAZ_Plus     B  2292    241   2051        457 0.19938918
+7 Rest_of_London    A1   538     88    450         28 0.05204461
+8 Rest_of_London    A2  1634    288   1346         53 0.03243574
+9 Rest_of_London     B  4115    917   3198        192 0.04665857
+
+Stage non-compliance rate by fleet type (pooled across groups/phases):
+  All records:  14.2%
+  Warm only:    13.8%
+  Cold only:    16.1%
+
+══ λ_PROACTIVE = λ_Policy − λ_CF (floored at 0) ══
+   [ē not subtracted: compliant-warm subset already excludes enforcement track]
+
+  A1/A2 var-speed pooled        λ_Policy= 0.3609  λ_CF= 0.1299  →  λ_Proactive= 0.2310
+  CS Phase A                    λ_Policy= 1.0000  λ_CF=-0.1074  →  λ_Proactive= 1.1074
+  CS Phase B                    λ_Policy= 0.2637  λ_CF= 0.0000  →  λ_Proactive= 0.2637
+  CAZ+ Phase B                  λ_Policy= 0.5361  λ_CF= 0.1613  →  λ_Proactive= 0.3748
+  RoL Phase B                   λ_Policy= 0.3378  λ_CF= 0.1516  →  λ_Proactive= 0.1862
+
+── Summary: λ_Policy / λ_CF / ē / λ_Proactive ──
+  A1/A2 var-speed pooled        ē= 0.073  λ_Pol= 0.361  λ_CF= 0.130  λ_Pro= 0.231
+  CS Phase A                    ē= 0.164  λ_Pol= 1.000  λ_CF=-0.107  λ_Pro= 1.107
+  CS Phase B                    ē= 0.828  λ_Pol= 0.264  λ_CF= 0.000  λ_Pro= 0.264
+  CAZ+ Phase B                  ē= 0.199  λ_Pol= 0.536  λ_CF= 0.161  λ_Pro= 0.375
+  RoL Phase B                   ē= 0.047  λ_Pol= 0.338  λ_CF= 0.152  λ_Pro= 0.186
+
+══ kW MEAN PER GROUP × STAGE (warm fleet) ══
+# A tibble: 17 × 4
+   Group          Initial.Stage.raw kw_mean     n
+   <chr>          <chr>               <dbl> <int>
+ 1 CAZ_Plus       I                    75.6     5
+ 2 CAZ_Plus       II                   83.8    38
+ 3 CAZ_Plus       IIIA                120.    127
+ 4 CAZ_Plus       IIIB                 84.2   881
+ 5 CAZ_Plus       IV                  141.    789
+ 6 CAZ_Plus       V                    93.2  1052
+ 7 Constant_Speed II                  117.     42
+ 8 Constant_Speed IIIA                179.    656
+ 9 Constant_Speed IIIB                440       1
+10 Constant_Speed IV                  168       1
+11 Constant_Speed V                   144.     95
+12 Rest_of_London I                    51       5
+13 Rest_of_London II                   89.5    71
+14 Rest_of_London IIIA                109.    312
+15 Rest_of_London IIIB                 76.8  2026
+16 Rest_of_London IV                  132.   1217
+17 Rest_of_London V                    87.2  1264
+
+══ EMISSION FACTORS (PLACEHOLDER — NOx g/kWh) ══
+  Stage:   I    II    IIIA    IIIB    IV    V    ZE 
+  EF:      10     7     5     3.5     2     0.4     0 
+  *** PLACEHOLDERS — require expert validation ***
+
+══ COMPLIANCE PLOTS ══
+  Saved: 260331_compliance_warm.png
+  Saved: 260331_compliance_cold.png
+  Saved: 260331_compliance_warm_pol.png
+
+Saved: 260331_step4_revised_parameters.RData
+Key objects: lambda_cf_streamA, lambda_policy_streamA, lambda_proactive_streamA,
+             e_bar_rows, e_bar, kw_by_group_stage, ef_nox_gkwh

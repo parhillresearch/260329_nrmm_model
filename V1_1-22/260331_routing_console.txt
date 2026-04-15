@@ -1,0 +1,399 @@
+══ ROUTING CLASSIFICATION — ALL RECORDS ══
+                          routing    n  pct
+1                  Self-compliant 6417 59.7
+2 Driven compliant - registration 2388 22.2
+3             Removed - emissions  557  5.2
+4    Driven compliant - emissions  380  3.5
+5           Compliant - exemption  374  3.5
+6    Non-compliant - registration  356  3.3
+7       Non-compliant - emissions  216  2.0
+8          Removed - registration   61  0.6
+
+══ ROUTING BY GROUP × PHASE ══
+            Group Phase                         routing    n
+1        CAZ_Plus    A1                  Self-compliant  266
+2        CAZ_Plus    A1           Compliant - exemption   33
+3        CAZ_Plus    A1       Non-compliant - emissions   30
+4        CAZ_Plus    A1    Non-compliant - registration   30
+5        CAZ_Plus    A1 Driven compliant - registration   23
+6        CAZ_Plus    A1             Removed - emissions   17
+7        CAZ_Plus    A1    Driven compliant - emissions    1
+8        CAZ_Plus    A2                  Self-compliant  409
+9        CAZ_Plus    A2 Driven compliant - registration  128
+10       CAZ_Plus    A2    Non-compliant - registration   43
+11       CAZ_Plus    A2           Compliant - exemption   24
+12       CAZ_Plus    A2             Removed - emissions   20
+13       CAZ_Plus    A2    Driven compliant - emissions   15
+14       CAZ_Plus    A2       Non-compliant - emissions   15
+15       CAZ_Plus    A2          Removed - registration    4
+16       CAZ_Plus     B                  Self-compliant 1393
+17       CAZ_Plus     B Driven compliant - registration  385
+18       CAZ_Plus     B             Removed - emissions  226
+19       CAZ_Plus     B    Driven compliant - emissions  109
+20       CAZ_Plus     B           Compliant - exemption   82
+21       CAZ_Plus     B    Non-compliant - registration   46
+22       CAZ_Plus     B       Non-compliant - emissions   40
+23       CAZ_Plus     B          Removed - registration   11
+24 Constant_Speed    A1                  Self-compliant   74
+25 Constant_Speed    A1       Non-compliant - emissions   17
+26 Constant_Speed    A1             Removed - emissions    6
+27 Constant_Speed    A1 Driven compliant - registration    5
+28 Constant_Speed    A1    Non-compliant - registration    2
+29 Constant_Speed    A2                  Self-compliant  142
+30 Constant_Speed    A2 Driven compliant - registration  115
+31 Constant_Speed    A2             Removed - emissions   40
+32 Constant_Speed    A2    Non-compliant - registration   12
+33 Constant_Speed    A2       Non-compliant - emissions    4
+34 Constant_Speed    A2           Compliant - exemption    2
+35 Constant_Speed    A2          Removed - registration    1
+36 Constant_Speed     B    Driven compliant - emissions  231
+37 Constant_Speed     B           Compliant - exemption  215
+38 Constant_Speed     B                  Self-compliant   81
+39 Constant_Speed     B             Removed - emissions   77
+40 Constant_Speed     B       Non-compliant - emissions   50
+41 Constant_Speed     B Driven compliant - registration   35
+42 Constant_Speed     B    Non-compliant - registration    2
+43 Constant_Speed     B          Removed - registration    1
+44 Rest_of_London    A1                  Self-compliant  493
+45 Rest_of_London    A1 Driven compliant - registration   15
+46 Rest_of_London    A1       Non-compliant - emissions   14
+47 Rest_of_London    A1             Removed - emissions    9
+48 Rest_of_London    A1           Compliant - exemption    3
+49 Rest_of_London    A1    Driven compliant - emissions    2
+50 Rest_of_London    A1    Non-compliant - registration    2
+51 Rest_of_London    A2                  Self-compliant 1045
+52 Rest_of_London    A2 Driven compliant - registration  448
+53 Rest_of_London    A2    Non-compliant - registration   77
+54 Rest_of_London    A2             Removed - emissions   34
+55 Rest_of_London    A2       Non-compliant - emissions   11
+56 Rest_of_London    A2          Removed - registration   11
+57 Rest_of_London    A2    Driven compliant - emissions    6
+58 Rest_of_London    A2           Compliant - exemption    2
+59 Rest_of_London     B                  Self-compliant 2514
+60 Rest_of_London     B Driven compliant - registration 1234
+
+══ YEAR-BY-YEAR ROUTING COUNTS (all records) ══
+# A tibble: 172 × 5
+    Group             yr routing                             n    pct
+    <chr>          <int> <chr>                           <int>  <dbl>
+  1 CAZ_Plus        2016 Compliant - exemption               4 30.8  
+  2 CAZ_Plus        2016 Non-compliant - emissions           1  7.69 
+  3 CAZ_Plus        2016 Self-compliant                      8 61.5  
+  4 CAZ_Plus        2017 Compliant - exemption              12  8.57 
+  5 CAZ_Plus        2017 Driven compliant - emissions        1  0.714
+  6 CAZ_Plus        2017 Non-compliant - emissions          11  7.86 
+  7 CAZ_Plus        2017 Non-compliant - registration        1  0.714
+  8 CAZ_Plus        2017 Removed - emissions                 9  6.43 
+  9 CAZ_Plus        2017 Self-compliant                    106 75.7  
+ 10 CAZ_Plus        2018 Compliant - exemption              17  6.88 
+ 11 CAZ_Plus        2018 Driven compliant - registration    23  9.31 
+ 12 CAZ_Plus        2018 Non-compliant - emissions          18  7.29 
+ 13 CAZ_Plus        2018 Non-compliant - registration       29 11.7  
+ 14 CAZ_Plus        2018 Removed - emissions                 8  3.24 
+ 15 CAZ_Plus        2018 Self-compliant                    152 61.5  
+ 16 CAZ_Plus        2019 Compliant - exemption              17  4.44 
+ 17 CAZ_Plus        2019 Driven compliant - emissions        5  1.31 
+ 18 CAZ_Plus        2019 Driven compliant - registration    60 15.7  
+ 19 CAZ_Plus        2019 Non-compliant - emissions          12  3.13 
+ 20 CAZ_Plus        2019 Non-compliant - registration       24  6.27 
+ 21 CAZ_Plus        2019 Removed - emissions                16  4.18 
+ 22 CAZ_Plus        2019 Self-compliant                    249 65.0  
+ 23 CAZ_Plus        2020 Compliant - exemption              21  4.88 
+ 24 CAZ_Plus        2020 Driven compliant - emissions       25  5.81 
+ 25 CAZ_Plus        2020 Driven compliant - registration   104 24.2  
+ 26 CAZ_Plus        2020 Non-compliant - emissions           4  0.930
+ 27 CAZ_Plus        2020 Non-compliant - registration       19  4.42 
+ 28 CAZ_Plus        2020 Removed - emissions                23  5.35 
+ 29 CAZ_Plus        2020 Removed - registration              4  0.930
+ 30 CAZ_Plus        2020 Self-compliant                    230 53.5  
+ 31 CAZ_Plus        2021 Compliant - exemption              44  8.46 
+ 32 CAZ_Plus        2021 Driven compliant - emissions       58 11.2  
+ 33 CAZ_Plus        2021 Driven compliant - registration    89 17.1  
+ 34 CAZ_Plus        2021 Non-compliant - emissions          18  3.46 
+ 35 CAZ_Plus        2021 Non-compliant - registration       13  2.5  
+ 36 CAZ_Plus        2021 Removed - emissions                52 10    
+ 37 CAZ_Plus        2021 Self-compliant                    246 47.3  
+ 38 CAZ_Plus        2022 Compliant - exemption              14  2.92 
+ 39 CAZ_Plus        2022 Driven compliant - emissions       23  4.80 
+ 40 CAZ_Plus        2022 Driven compliant - registration    87 18.2  
+ 41 CAZ_Plus        2022 Non-compliant - emissions           8  1.67 
+ 42 CAZ_Plus        2022 Non-compliant - registration        3  0.626
+ 43 CAZ_Plus        2022 Removed - emissions                60 12.5  
+ 44 CAZ_Plus        2022 Removed - registration              2  0.418
+ 45 CAZ_Plus        2022 Self-compliant                    282 58.9  
+ 46 CAZ_Plus        2023 Compliant - exemption               4  0.554
+ 47 CAZ_Plus        2023 Driven compliant - emissions       12  1.66 
+ 48 CAZ_Plus        2023 Driven compliant - registration   132 18.3  
+ 49 CAZ_Plus        2023 Non-compliant - emissions          10  1.39 
+ 50 CAZ_Plus        2023 Non-compliant - registration       18  2.49 
+ 51 CAZ_Plus        2023 Removed - emissions                66  9.14 
+ 52 CAZ_Plus        2023 Removed - registration              5  0.693
+ 53 CAZ_Plus        2023 Self-compliant                    475 65.8  
+ 54 CAZ_Plus        2024 Compliant - exemption               6  1.44 
+ 55 CAZ_Plus        2024 Driven compliant - emissions        1  0.240
+ 56 CAZ_Plus        2024 Driven compliant - registration    41  9.86 
+ 57 CAZ_Plus        2024 Non-compliant - emissions           3  0.721
+ 58 CAZ_Plus        2024 Non-compliant - registration       12  2.88 
+ 59 CAZ_Plus        2024 Removed - emissions                29  6.97 
+ 60 CAZ_Plus        2024 Removed - registration              4  0.962
+ 61 CAZ_Plus        2024 Self-compliant                    320 76.9  
+ 62 Constant_Speed  2016 Non-compliant - emissions           1 14.3  
+ 63 Constant_Speed  2016 Self-compliant                      6 85.7  
+ 64 Constant_Speed  2017 Driven compliant - registration     1  2.86 
+ 65 Constant_Speed  2017 Non-compliant - emissions           5 14.3  
+ 66 Constant_Speed  2017 Removed - emissions                 2  5.71 
+ 67 Constant_Speed  2017 Self-compliant                     27 77.1  
+ 68 Constant_Speed  2018 Driven compliant - registration     4  6.45 
+ 69 Constant_Speed  2018 Non-compliant - emissions          11 17.7  
+ 70 Constant_Speed  2018 Non-compliant - registration        2  3.23 
+ 71 Constant_Speed  2018 Removed - emissions                 4  6.45 
+ 72 Constant_Speed  2018 Self-compliant                     41 66.1  
+ 73 Constant_Speed  2019 Compliant - exemption               2  0.913
+ 74 Constant_Speed  2019 Driven compliant - registration    67 30.6  
+ 75 Constant_Speed  2019 Non-compliant - emissions           3  1.37 
+ 76 Constant_Speed  2019 Non-compliant - registration       10  4.57 
+ 77 Constant_Speed  2019 Removed - emissions                36 16.4  
+ 78 Constant_Speed  2019 Removed - registration              1  0.457
+ 79 Constant_Speed  2019 Self-compliant                    100 45.7  
+ 80 Constant_Speed  2020 Compliant - exemption              33 18.6  
+ 81 Constant_Speed  2020 Driven compliant - emissions       38 21.5  
+ 82 Constant_Speed  2020 Driven compliant - registration    48 27.1  
+ 83 Constant_Speed  2020 Non-compliant - emissions           3  1.69 
+ 84 Constant_Speed  2020 Non-compliant - registration        2  1.13 
+ 85 Constant_Speed  2020 Removed - emissions                11  6.21 
+ 86 Constant_Speed  2020 Self-compliant                     42 23.7  
+ 87 Constant_Speed  2021 Compliant - exemption              65 40.6  
+ 88 Constant_Speed  2021 Driven compliant - emissions       80 50    
+ 89 Constant_Speed  2021 Non-compliant - emissions           9  5.62 
+ 90 Constant_Speed  2021 Removed - emissions                 6  3.75 
+ 91 Constant_Speed  2022 Compliant - exemption              55 32.5  
+ 92 Constant_Speed  2022 Driven compliant - emissions       69 40.8  
+ 93 Constant_Speed  2022 Driven compliant - registration     1  0.592
+ 94 Constant_Speed  2022 Non-compliant - emissions          19 11.2  
+ 95 Constant_Speed  2022 Removed - emissions                20 11.8  
+ 96 Constant_Speed  2022 Self-compliant                      5  2.96 
+ 97 Constant_Speed  2023 Compliant - exemption              46 31.9  
+ 98 Constant_Speed  2023 Driven compliant - emissions       36 25    
+ 99 Constant_Speed  2023 Driven compliant - registration     9  6.25 
+100 Constant_Speed  2023 Non-compliant - emissions          13  9.03 
+# ℹ 72 more rows
+# ℹ Use `print(n = ...)` to see more rows
+
+══ YEAR-BY-YEAR ROUTING COUNTS (warm fleet) ══
+# A tibble: 166 × 5
+    Group             yr routing                             n    pct
+    <chr>          <int> <chr>                           <int>  <dbl>
+  1 CAZ_Plus        2016 Compliant - exemption               4 33.3  
+  2 CAZ_Plus        2016 Self-compliant                      8 66.7  
+  3 CAZ_Plus        2017 Compliant - exemption              12  9.02 
+  4 CAZ_Plus        2017 Driven compliant - emissions        1  0.752
+  5 CAZ_Plus        2017 Non-compliant - emissions          10  7.52 
+  6 CAZ_Plus        2017 Non-compliant - registration        1  0.752
+  7 CAZ_Plus        2017 Removed - emissions                 6  4.51 
+  8 CAZ_Plus        2017 Self-compliant                    103 77.4  
+  9 CAZ_Plus        2018 Compliant - exemption              17  8.33 
+ 10 CAZ_Plus        2018 Driven compliant - registration    18  8.82 
+ 11 CAZ_Plus        2018 Non-compliant - emissions           8  3.92 
+ 12 CAZ_Plus        2018 Non-compliant - registration       11  5.39 
+ 13 CAZ_Plus        2018 Removed - emissions                 7  3.43 
+ 14 CAZ_Plus        2018 Self-compliant                    143 70.1  
+ 15 CAZ_Plus        2019 Compliant - exemption              17  4.87 
+ 16 CAZ_Plus        2019 Driven compliant - emissions        3  0.860
+ 17 CAZ_Plus        2019 Driven compliant - registration    47 13.5  
+ 18 CAZ_Plus        2019 Non-compliant - emissions           7  2.01 
+ 19 CAZ_Plus        2019 Non-compliant - registration       18  5.16 
+ 20 CAZ_Plus        2019 Removed - emissions                13  3.72 
+ 21 CAZ_Plus        2019 Self-compliant                    244 69.9  
+ 22 CAZ_Plus        2020 Compliant - exemption              21  5.48 
+ 23 CAZ_Plus        2020 Driven compliant - emissions       20  5.22 
+ 24 CAZ_Plus        2020 Driven compliant - registration    75 19.6  
+ 25 CAZ_Plus        2020 Non-compliant - emissions           2  0.522
+ 26 CAZ_Plus        2020 Non-compliant - registration       19  4.96 
+ 27 CAZ_Plus        2020 Removed - emissions                17  4.44 
+ 28 CAZ_Plus        2020 Removed - registration              4  1.04 
+ 29 CAZ_Plus        2020 Self-compliant                    225 58.7  
+ 30 CAZ_Plus        2021 Compliant - exemption              44  9.76 
+ 31 CAZ_Plus        2021 Driven compliant - emissions       52 11.5  
+ 32 CAZ_Plus        2021 Driven compliant - registration    56 12.4  
+ 33 CAZ_Plus        2021 Non-compliant - emissions          11  2.44 
+ 34 CAZ_Plus        2021 Non-compliant - registration       10  2.22 
+ 35 CAZ_Plus        2021 Removed - emissions                43  9.53 
+ 36 CAZ_Plus        2021 Self-compliant                    235 52.1  
+ 37 CAZ_Plus        2022 Compliant - exemption              14  3.17 
+ 38 CAZ_Plus        2022 Driven compliant - emissions       23  5.20 
+ 39 CAZ_Plus        2022 Driven compliant - registration    76 17.2  
+ 40 CAZ_Plus        2022 Non-compliant - emissions           6  1.36 
+ 41 CAZ_Plus        2022 Non-compliant - registration        2  0.452
+ 42 CAZ_Plus        2022 Removed - emissions                51 11.5  
+ 43 CAZ_Plus        2022 Removed - registration              2  0.452
+ 44 CAZ_Plus        2022 Self-compliant                    268 60.6  
+ 45 CAZ_Plus        2023 Compliant - exemption               4  0.626
+ 46 CAZ_Plus        2023 Driven compliant - emissions        9  1.41 
+ 47 CAZ_Plus        2023 Driven compliant - registration   101 15.8  
+ 48 CAZ_Plus        2023 Non-compliant - emissions           7  1.10 
+ 49 CAZ_Plus        2023 Non-compliant - registration       10  1.56 
+ 50 CAZ_Plus        2023 Removed - emissions                53  8.29 
+ 51 CAZ_Plus        2023 Removed - registration              5  0.782
+ 52 CAZ_Plus        2023 Self-compliant                    450 70.4  
+ 53 CAZ_Plus        2024 Compliant - exemption               5  1.33 
+ 54 CAZ_Plus        2024 Driven compliant - emissions        1  0.266
+ 55 CAZ_Plus        2024 Driven compliant - registration    26  6.91 
+ 56 CAZ_Plus        2024 Non-compliant - emissions           2  0.532
+ 57 CAZ_Plus        2024 Non-compliant - registration        1  0.266
+ 58 CAZ_Plus        2024 Removed - emissions                25  6.65 
+ 59 CAZ_Plus        2024 Removed - registration              4  1.06 
+ 60 CAZ_Plus        2024 Self-compliant                    312 83.0  
+ 61 Constant_Speed  2016 Non-compliant - emissions           1 14.3  
+ 62 Constant_Speed  2016 Self-compliant                      6 85.7  
+ 63 Constant_Speed  2017 Driven compliant - registration     1  3.57 
+ 64 Constant_Speed  2017 Non-compliant - emissions           2  7.14 
+ 65 Constant_Speed  2017 Removed - emissions                 1  3.57 
+ 66 Constant_Speed  2017 Self-compliant                     24 85.7  
+ 67 Constant_Speed  2018 Driven compliant - registration     4  7.55 
+ 68 Constant_Speed  2018 Non-compliant - emissions           9 17.0  
+ 69 Constant_Speed  2018 Non-compliant - registration        2  3.77 
+ 70 Constant_Speed  2018 Removed - emissions                 3  5.66 
+ 71 Constant_Speed  2018 Self-compliant                     35 66.0  
+ 72 Constant_Speed  2019 Compliant - exemption               2  1.10 
+ 73 Constant_Speed  2019 Driven compliant - registration    53 29.1  
+ 74 Constant_Speed  2019 Non-compliant - emissions           2  1.10 
+ 75 Constant_Speed  2019 Non-compliant - registration        5  2.75 
+ 76 Constant_Speed  2019 Removed - emissions                28 15.4  
+ 77 Constant_Speed  2019 Removed - registration              1  0.549
+ 78 Constant_Speed  2019 Self-compliant                     91 50    
+ 79 Constant_Speed  2020 Compliant - exemption              29 19.3  
+ 80 Constant_Speed  2020 Driven compliant - emissions       26 17.3  
+ 81 Constant_Speed  2020 Driven compliant - registration    43 28.7  
+ 82 Constant_Speed  2020 Non-compliant - emissions           1  0.667
+ 83 Constant_Speed  2020 Non-compliant - registration        2  1.33 
+ 84 Constant_Speed  2020 Removed - emissions                 7  4.67 
+ 85 Constant_Speed  2020 Self-compliant                     42 28    
+ 86 Constant_Speed  2021 Compliant - exemption              63 46.7  
+ 87 Constant_Speed  2021 Driven compliant - emissions       59 43.7  
+ 88 Constant_Speed  2021 Non-compliant - emissions           7  5.19 
+ 89 Constant_Speed  2021 Removed - emissions                 6  4.44 
+ 90 Constant_Speed  2022 Compliant - exemption              51 34    
+ 91 Constant_Speed  2022 Driven compliant - emissions       62 41.3  
+ 92 Constant_Speed  2022 Driven compliant - registration     1  0.667
+ 93 Constant_Speed  2022 Non-compliant - emissions          17 11.3  
+ 94 Constant_Speed  2022 Removed - emissions                14  9.33 
+ 95 Constant_Speed  2022 Self-compliant                      5  3.33 
+ 96 Constant_Speed  2023 Compliant - exemption              46 34.1  
+ 97 Constant_Speed  2023 Driven compliant - emissions       34 25.2  
+ 98 Constant_Speed  2023 Driven compliant - registration     9  6.67 
+ 99 Constant_Speed  2023 Non-compliant - emissions           8  5.93 
+100 Constant_Speed  2023 Removed - emissions                23 17.0  
+# ℹ 66 more rows
+# ℹ Use `print(n = ...)` to see more rows
+
+══ YEAR-BY-YEAR ROUTING COUNTS (cold fleet) ══
+# A tibble: 124 × 5
+    Group             yr routing                             n     pct
+    <chr>          <int> <chr>                           <int>   <dbl>
+  1 CAZ_Plus        2016 Non-compliant - emissions           1 100    
+  2 CAZ_Plus        2017 Non-compliant - emissions           1  14.3  
+  3 CAZ_Plus        2017 Removed - emissions                 3  42.9  
+  4 CAZ_Plus        2017 Self-compliant                      3  42.9  
+  5 CAZ_Plus        2018 Driven compliant - registration     5  11.6  
+  6 CAZ_Plus        2018 Non-compliant - emissions          10  23.3  
+  7 CAZ_Plus        2018 Non-compliant - registration       18  41.9  
+  8 CAZ_Plus        2018 Removed - emissions                 1   2.33 
+  9 CAZ_Plus        2018 Self-compliant                      9  20.9  
+ 10 CAZ_Plus        2019 Driven compliant - emissions        2   5.88 
+ 11 CAZ_Plus        2019 Driven compliant - registration    13  38.2  
+ 12 CAZ_Plus        2019 Non-compliant - emissions           5  14.7  
+ 13 CAZ_Plus        2019 Non-compliant - registration        6  17.6  
+ 14 CAZ_Plus        2019 Removed - emissions                 3   8.82 
+ 15 CAZ_Plus        2019 Self-compliant                      5  14.7  
+ 16 CAZ_Plus        2020 Driven compliant - emissions        5  10.6  
+ 17 CAZ_Plus        2020 Driven compliant - registration    29  61.7  
+ 18 CAZ_Plus        2020 Non-compliant - emissions           2   4.26 
+ 19 CAZ_Plus        2020 Removed - emissions                 6  12.8  
+ 20 CAZ_Plus        2020 Self-compliant                      5  10.6  
+ 21 CAZ_Plus        2021 Driven compliant - emissions        6   8.70 
+ 22 CAZ_Plus        2021 Driven compliant - registration    33  47.8  
+ 23 CAZ_Plus        2021 Non-compliant - emissions           7  10.1  
+ 24 CAZ_Plus        2021 Non-compliant - registration        3   4.35 
+ 25 CAZ_Plus        2021 Removed - emissions                 9  13.0  
+ 26 CAZ_Plus        2021 Self-compliant                     11  15.9  
+ 27 CAZ_Plus        2022 Driven compliant - registration    11  29.7  
+ 28 CAZ_Plus        2022 Non-compliant - emissions           2   5.41 
+ 29 CAZ_Plus        2022 Non-compliant - registration        1   2.70 
+ 30 CAZ_Plus        2022 Removed - emissions                 9  24.3  
+ 31 CAZ_Plus        2022 Self-compliant                     14  37.8  
+ 32 CAZ_Plus        2023 Driven compliant - emissions        3   3.61 
+ 33 CAZ_Plus        2023 Driven compliant - registration    31  37.3  
+ 34 CAZ_Plus        2023 Non-compliant - emissions           3   3.61 
+ 35 CAZ_Plus        2023 Non-compliant - registration        8   9.64 
+ 36 CAZ_Plus        2023 Removed - emissions                13  15.7  
+ 37 CAZ_Plus        2023 Self-compliant                     25  30.1  
+ 38 CAZ_Plus        2024 Compliant - exemption               1   2.5  
+ 39 CAZ_Plus        2024 Driven compliant - registration    15  37.5  
+ 40 CAZ_Plus        2024 Non-compliant - emissions           1   2.5  
+ 41 CAZ_Plus        2024 Non-compliant - registration       11  27.5  
+ 42 CAZ_Plus        2024 Removed - emissions                 4  10    
+ 43 CAZ_Plus        2024 Self-compliant                      8  20    
+ 44 Constant_Speed  2017 Non-compliant - emissions           3  42.9  
+ 45 Constant_Speed  2017 Removed - emissions                 1  14.3  
+ 46 Constant_Speed  2017 Self-compliant                      3  42.9  
+ 47 Constant_Speed  2018 Non-compliant - emissions           2  22.2  
+ 48 Constant_Speed  2018 Removed - emissions                 1  11.1  
+ 49 Constant_Speed  2018 Self-compliant                      6  66.7  
+ 50 Constant_Speed  2019 Driven compliant - registration    14  37.8  
+ 51 Constant_Speed  2019 Non-compliant - emissions           1   2.70 
+ 52 Constant_Speed  2019 Non-compliant - registration        5  13.5  
+ 53 Constant_Speed  2019 Removed - emissions                 8  21.6  
+ 54 Constant_Speed  2019 Self-compliant                      9  24.3  
+ 55 Constant_Speed  2020 Compliant - exemption               4  14.8  
+ 56 Constant_Speed  2020 Driven compliant - emissions       12  44.4  
+ 57 Constant_Speed  2020 Driven compliant - registration     5  18.5  
+ 58 Constant_Speed  2020 Non-compliant - emissions           2   7.41 
+ 59 Constant_Speed  2020 Removed - emissions                 4  14.8  
+ 60 Constant_Speed  2021 Compliant - exemption               2   8    
+ 61 Constant_Speed  2021 Driven compliant - emissions       21  84    
+ 62 Constant_Speed  2021 Non-compliant - emissions           2   8    
+ 63 Constant_Speed  2022 Compliant - exemption               4  21.1  
+ 64 Constant_Speed  2022 Driven compliant - emissions        7  36.8  
+ 65 Constant_Speed  2022 Non-compliant - emissions           2  10.5  
+ 66 Constant_Speed  2022 Removed - emissions                 6  31.6  
+ 67 Constant_Speed  2023 Driven compliant - emissions        2  22.2  
+ 68 Constant_Speed  2023 Non-compliant - emissions           5  55.6  
+ 69 Constant_Speed  2023 Removed - emissions                 2  22.2  
+ 70 Constant_Speed  2024 Driven compliant - emissions        2   7.14 
+ 71 Constant_Speed  2024 Driven compliant - registration    10  35.7  
+ 72 Constant_Speed  2024 Non-compliant - emissions           2   7.14 
+ 73 Constant_Speed  2024 Non-compliant - registration        2   7.14 
+ 74 Constant_Speed  2024 Removed - emissions                 7  25    
+ 75 Constant_Speed  2024 Self-compliant                      5  17.9  
+ 76 Rest_of_London  2016 Non-compliant - emissions           1   5    
+ 77 Rest_of_London  2016 Removed - emissions                 1   5    
+ 78 Rest_of_London  2016 Self-compliant                     18  90    
+ 79 Rest_of_London  2017 Non-compliant - emissions           2   5.56 
+ 80 Rest_of_London  2017 Removed - emissions                 3   8.33 
+ 81 Rest_of_London  2017 Self-compliant                     31  86.1  
+ 82 Rest_of_London  2018 Driven compliant - registration     1   3.12 
+ 83 Rest_of_London  2018 Non-compliant - emissions           2   6.25 
+ 84 Rest_of_London  2018 Non-compliant - registration        1   3.12 
+ 85 Rest_of_London  2018 Removed - emissions                 2   6.25 
+ 86 Rest_of_London  2018 Self-compliant                     26  81.2  
+ 87 Rest_of_London  2019 Driven compliant - emissions        1   0.552
+ 88 Rest_of_London  2019 Driven compliant - registration    84  46.4  
+ 89 Rest_of_London  2019 Non-compliant - emissions           2   1.10 
+ 90 Rest_of_London  2019 Non-compliant - registration       19  10.5  
+ 91 Rest_of_London  2019 Removed - emissions                 8   4.42 
+ 92 Rest_of_London  2019 Removed - registration              2   1.10 
+ 93 Rest_of_London  2019 Self-compliant                     65  35.9  
+ 94 Rest_of_London  2020 Driven compliant - registration   107  47.8  
+ 95 Rest_of_London  2020 Non-compliant - emissions           7   3.12 
+ 96 Rest_of_London  2020 Non-compliant - registration       45  20.1  
+ 97 Rest_of_London  2020 Removed - emissions                 8   3.57 
+ 98 Rest_of_London  2020 Self-compliant                     57  25.4  
+ 99 Rest_of_London  2021 Driven compliant - emissions        1   0.412
+100 Rest_of_London  2021 Driven compliant - registration   161  66.3  
+# ℹ 24 more rows
+# ℹ Use `print(n = ...)` to see more rows
+
+Saved: 260331_routing_all.png
+Saved: 260331_routing_warm.png
+Saved: 260331_routing_cold.png
+Saved: 260331_routing_stacked.png

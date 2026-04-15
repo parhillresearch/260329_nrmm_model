@@ -1,0 +1,10 @@
+intermediate/
+outputs/*.png
+.Rhistory
+*.RData
+.Rproj.user/
+*.Rproj
+.claude/
+*.xlsx
+~$*
+*_files/

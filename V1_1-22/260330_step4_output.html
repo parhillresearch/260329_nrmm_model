@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>step4_output</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="260330_step4_output_files/libs/clipboard/clipboard.min.js"></script>
+<script src="260330_step4_output_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="260330_step4_output_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="260330_step4_output_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="260330_step4_output_files/libs/quarto-html/popper.min.js"></script>
+<script src="260330_step4_output_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="260330_step4_output_files/libs/quarto-html/anchor.min.js"></script>
+<link href="260330_step4_output_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="260330_step4_output_files/libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="260330_step4_output_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="260330_step4_output_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="260330_step4_output_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="step-4-output-parameter-estimation" class="level1">
+<h1>Step 4 Output: Parameter Estimation</h1>
+<p><strong>Script:</strong> <code>260330_step4_parameter_estimation.R</code> | <strong>Date:</strong> 30 March 2026 <strong>Inputs:</strong> <code>260329_step2_exploratory.RData</code> <strong>Outputs:</strong> <code>260330_step4_parameters.RData</code>, <code>260330_compliance_warm.png</code>, <code>260330_compliance_cold.png</code></p>
+<hr>
+<section id="stream-a-λ_cf-binary-compliance-cold-fleet" class="level2">
+<h2 class="anchored" data-anchor-id="stream-a-λ_cf-binary-compliance-cold-fleet">1. Stream A λ_CF — Binary Compliance (Cold Fleet)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>λ_CF</th>
+<th>SE</th>
+<th>95% CI</th>
+<th>Significant?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A1/A2 Variable Speed (pooled)</td>
+<td>0.130</td>
+<td>0.198</td>
+<td>[−0.257, 0.517]</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Constant Speed Phase A (IIIA threshold)</td>
+<td>−0.107</td>
+<td>0.417</td>
+<td>[−0.925, 0.710]</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Constant Speed Phase B (V threshold)</td>
+<td>0.000</td>
+<td>—</td>
+<td>—</td>
+<td>By inspection</td>
+</tr>
+<tr class="even">
+<td>CAZ+ Phase B (IV threshold, 3-seg)</td>
+<td>0.161</td>
+<td>0.143</td>
+<td>[−0.119, 0.442]</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>RoL Phase B (IIIB threshold, 3-seg)</td>
+<td>0.152</td>
+<td>0.157</td>
+<td>[−0.156, 0.460]</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> All binary λ_CF estimates are statistically non-significant (95% CIs include zero). This is expected: the cold-engaged fleet is small (n = 21–360 per segment), and collapsing the stage distribution to binary compliance discards granular signal. The granular Stream B λ_CF estimates (§5 below) are more reliable.</p>
+<p>The <strong>CS Phase A binary λ_CF = −0.107</strong> is an artefact, not a genuine decline in natural compliance. The cold CS fleet in Phase A2 2020 (Jan–Aug only) contained n = 9 records with p_compliant = 0.556, a drop from 0.757 in 2019 — a sampling noise reversal in a very small stratum. The granular estimate of 0.358 remains the authoritative value for CS.</p>
+<p><strong>CS Phase B λ_CF = 0</strong> is correct by inspection: no Stage V machinery appeared in the cold-engaged CS fleet during 2021–2023, confirming that without LEZ intervention no natural Stage V replacement would have occurred.</p>
+<hr>
+</section>
+<section id="stream-a-λ_total-binary-compliance-warm-fleet" class="level2">
+<h2 class="anchored" data-anchor-id="stream-a-λ_total-binary-compliance-warm-fleet">2. Stream A λ_Total — Binary Compliance (Warm Fleet)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>λ_Total</th>
+<th>SE</th>
+<th>95% CI</th>
+<th>Significant?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A1/A2 Variable Speed (pooled)</td>
+<td>0.292</td>
+<td>0.122</td>
+<td>[0.052, 0.531]</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="even">
+<td>Constant Speed Phase A (IIIA threshold)</td>
+<td>0.636</td>
+<td>0.336</td>
+<td>[−0.021, 1.294]</td>
+<td>Marginal</td>
+</tr>
+<tr class="odd">
+<td>Constant Speed Phase B (V threshold)</td>
+<td>0.213</td>
+<td>0.151</td>
+<td>[−0.082, 0.508]</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>CAZ+ Phase B (IV threshold, 3-seg)</td>
+<td><strong>0.311</strong></td>
+<td><strong>0.006</strong></td>
+<td><strong>[0.299, 0.323]</strong></td>
+<td><strong>Yes — very high precision</strong></td>
+</tr>
+<tr class="odd">
+<td>RoL Phase B (IIIB threshold, 3-seg)</td>
+<td>0.265</td>
+<td>0.233</td>
+<td>[−0.193, 0.722]</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> <strong>CAZ+ Phase B λ_Total = 0.311 (CI ±0.012)</strong> is the most robust estimate in the dataset. The large Phase B warm fleet (2,051 records; 3-segment sizes 594/684/773) gives exceptional statistical precision. Compliance in the CAZ+ warm fleet improved from 67% to 90% between Phase B segments 1 and 3 — a 23 percentage point gain over ~3 years.</p>
+<p><strong>CS Phase B warm fleet compliance</strong> (Stage V threshold) rose from 0% (2021) → 4% (2022) → 18% (2023) → 65% (2024). This growth is nearly entirely attributable to enforcement (the Phase C 2025 mandate was well-signposted), with λ_Total = 0.213 and wide uncertainty given the compressed compliance window.</p>
+<p><strong>RoL Phase B λ_Total = 0.265</strong> is imprecise (CI spans from negative to 0.72) despite large segment sizes (987/1015/1196). The compliance proportions were already high and compressed (94% → 95% → 99%), so small absolute changes are amplified into unstable WLS estimates. The improvement is real but the rate is uncertain.</p>
+<hr>
+</section>
+<section id="enforcement-rate-ē" class="level2">
+<h2 class="anchored" data-anchor-id="enforcement-rate-ē">3. Enforcement Rate (ē)</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Phase</th>
+<th>n_warm</th>
+<th>n_enforced</th>
+<th>ē (annual avg.)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Constant Speed</td>
+<td>A1</td>
+<td>88</td>
+<td>15</td>
+<td>0.170</td>
+</tr>
+<tr class="even">
+<td>Constant Speed</td>
+<td>A2</td>
+<td>270</td>
+<td>33</td>
+<td>0.122</td>
+</tr>
+<tr class="odd">
+<td><strong>Constant Speed</strong></td>
+<td><strong>B</strong></td>
+<td><strong>593</strong></td>
+<td><strong>489</strong></td>
+<td><strong>0.825</strong></td>
+</tr>
+<tr class="even">
+<td>CAZ+</td>
+<td>A1</td>
+<td>349</td>
+<td>62</td>
+<td>0.178</td>
+</tr>
+<tr class="odd">
+<td>CAZ+</td>
+<td>A2</td>
+<td>589</td>
+<td>50</td>
+<td>0.085</td>
+</tr>
+<tr class="even">
+<td>CAZ+</td>
+<td>B</td>
+<td>2,051</td>
+<td>393</td>
+<td>0.192</td>
+</tr>
+<tr class="odd">
+<td>Rest of London</td>
+<td>A1</td>
+<td>450</td>
+<td>16</td>
+<td>0.036</td>
+</tr>
+<tr class="even">
+<td>Rest of London</td>
+<td>B</td>
+<td>3,198</td>
+<td>125</td>
+<td>0.039</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong></p>
+<p><strong>Constant Speed Phase B (ē = 0.825):</strong> As expected and flagged in the pipeline. Under the Stage V mandate active from Sep 2020, 82.5% of warm CS machines were non-compliant at initial audit throughout Phase B — these were all under enforcement obligation. No λ_Proactive signal exists for this group/phase: all CS Phase B compliance improvement is enforcement-driven.</p>
+<p><strong>CAZ+ shows enforcement sensitivity to threshold changes.</strong> ē drops from 17.8% (A1, threshold IIIB) to 8.5% (A2, same threshold) as the fleet improved through Phase A, then rises back to 19.2% in Phase B when the threshold jumps to IV, bringing previously-compliant IIIB machines back into non-compliance.</p>
+<p><strong>Rest of London has consistently low ē (3–4%).</strong> With a relatively permissive Phase B threshold (IIIB), most RoL warm machines were already compliant. The low enforcement rate is genuine, not a data artefact.</p>
+<hr>
+</section>
+<section id="λ_proactive-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="λ_proactive-decomposition">4. λ_Proactive — Decomposition</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>λ_Total</th>
+<th>λ_CF</th>
+<th>ē</th>
+<th>λ_Proactive</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A1/A2 Variable Speed</td>
+<td>0.292</td>
+<td>0.130</td>
+<td>0.058</td>
+<td><strong>0.104</strong></td>
+<td>Positive</td>
+</tr>
+<tr class="even">
+<td>CS Phase A</td>
+<td>0.636</td>
+<td>−0.107</td>
+<td>0.134</td>
+<td><strong>0.610</strong></td>
+<td>Positive (unreliable — see note)</td>
+</tr>
+<tr class="odd">
+<td>CS Phase B</td>
+<td>0.213</td>
+<td>0.000</td>
+<td>0.825</td>
+<td>0.000</td>
+<td>Floored</td>
+</tr>
+<tr class="even">
+<td>CAZ+ Phase B</td>
+<td>0.311</td>
+<td>0.161</td>
+<td>0.192</td>
+<td>0.000</td>
+<td>Floored</td>
+</tr>
+<tr class="odd">
+<td>RoL Phase B</td>
+<td>0.265</td>
+<td>0.152</td>
+<td>0.039</td>
+<td><strong>0.074</strong></td>
+<td>Positive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong></p>
+<p><strong>A1/A2 Variable Speed λ_Proactive = 0.104:</strong> A genuine proactive LEZ response is detectable in the early programme period. The warm fleet compliance improved at ~0.29/yr, against a cold-fleet counterfactual of ~0.13/yr and enforcement exposure of ~0.06/yr. The proactive response (operators voluntarily upgrading in advance of enforcement) accounts for ~36% of total compliance improvement.</p>
+<p><strong>CS Phase A λ_Proactive = 0.610:</strong> This estimate is unreliable. It is driven by the artefactual negative λ_CF (−0.107) inflating λ_Proactive. Treat as an upper bound; the true proactive rate is likely lower. Further investigation of CS Phase A binary estimates is warranted.</p>
+<p><strong>CS Phase B and CAZ+ Phase B λ_Proactive = 0 [floored]:</strong> For CS Phase B, this is structurally correct — near-total enforcement exposure (ē = 0.83) leaves no headroom for a detectable proactive component. For CAZ+ Phase B, the combined counterfactual (0.161) and enforcement (0.192) already exceed the observed total rate (0.311). This implies either the natural rate and/or enforcement rate are overestimated for this group, or the proactive and enforcement channels are not cleanly separable at this level of model resolution. The Phase 5 reconciliation floor-and-rescale handles this arithmetically.</p>
+<p><strong>RoL Phase B λ_Proactive = 0.074:</strong> RoL shows a small but real proactive response. The proactive rate (0.074) roughly equals the enforcement rate (0.039) × 2 — operators in the broader London area appear to be voluntarily upgrading at about twice the rate forced by enforcement, suggesting awareness of and anticipation of the Phase C (2025) IV mandate.</p>
+<hr>
+</section>
+<section id="confirmed-stream-b-λ_cf-granular-from-steps-3b3c" class="level2">
+<h2 class="anchored" data-anchor-id="confirmed-stream-b-λ_cf-granular-from-steps-3b3c">5. Confirmed Stream B λ_CF (Granular, from Steps 3b/3c)</h2>
+<p>These values supersede the binary Stream A λ_CF for Objective 1 quantification and matrix construction.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>λ_CF</th>
+<th>SE</th>
+<th>95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Constant Speed</td>
+<td>0.358</td>
+<td>0.067</td>
+<td>[0.226, 0.490]</td>
+</tr>
+<tr class="even">
+<td>CAZ+</td>
+<td>0.363</td>
+<td>0.052</td>
+<td>[0.261, 0.464]</td>
+</tr>
+<tr class="odd">
+<td>Rest of London</td>
+<td>0.219</td>
+<td>0.048</td>
+<td>[0.125, 0.313]</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="mean-kw-per-group-stage-warm-fleet" class="level2">
+<h2 class="anchored" data-anchor-id="mean-kw-per-group-stage-warm-fleet">6. Mean kW per Group × Stage (Warm Fleet)</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Stage</th>
+<th>kW mean</th>
+<th>n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Constant Speed</td>
+<td>II</td>
+<td>117</td>
+<td>42</td>
+</tr>
+<tr class="even">
+<td>Constant Speed</td>
+<td>IIIA</td>
+<td>179</td>
+<td>656</td>
+</tr>
+<tr class="odd">
+<td>Constant Speed</td>
+<td>V</td>
+<td>144</td>
+<td>95</td>
+</tr>
+<tr class="even">
+<td>CAZ+</td>
+<td>IIIA</td>
+<td>120</td>
+<td>127</td>
+</tr>
+<tr class="odd">
+<td>CAZ+</td>
+<td>IIIB</td>
+<td>84</td>
+<td>881</td>
+</tr>
+<tr class="even">
+<td>CAZ+</td>
+<td>IV</td>
+<td>141</td>
+<td>789</td>
+</tr>
+<tr class="odd">
+<td>CAZ+</td>
+<td>V</td>
+<td>93</td>
+<td>1,052</td>
+</tr>
+<tr class="even">
+<td>RoL</td>
+<td>IIIA</td>
+<td>109</td>
+<td>312</td>
+</tr>
+<tr class="odd">
+<td>RoL</td>
+<td>IIIB</td>
+<td>77</td>
+<td>2,026</td>
+</tr>
+<tr class="even">
+<td>RoL</td>
+<td>IV</td>
+<td>132</td>
+<td>1,217</td>
+</tr>
+<tr class="odd">
+<td>RoL</td>
+<td>V</td>
+<td>87</td>
+<td>1,264</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong> CS IIIB (n=1, 440 kW) and CS IV (n=1, 168 kW) are single-record outliers; kW means for these cells are unreliable and should be replaced by group means for emissions estimation. Stage V machines are generally smaller than Stage IV across all groups — consistent with newer compact equipment entering the fleet.</p>
+<hr>
+</section>
+<section id="emission-factors-placeholder" class="level2">
+<h2 class="anchored" data-anchor-id="emission-factors-placeholder">7. Emission Factors (PLACEHOLDER)</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>I</th>
+<th>II</th>
+<th>IIIA</th>
+<th>IIIB</th>
+<th>IV</th>
+<th>V</th>
+<th>ZE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NOx (g/kWh)</td>
+<td>10.0</td>
+<td>7.0</td>
+<td>5.0</td>
+<td>3.5</td>
+<td>2.0</td>
+<td>0.4</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>⚠ PLACEHOLDER values</strong> — EMEP/EEA Tier 3 (Ntziachristos &amp; Samaras, 2019). Require expert review against project-specific engine category and power-band weighted averages before final reporting.</p>
+<hr>
+</section>
+<section id="key-caveats-for-phase-5" class="level2">
+<h2 class="anchored" data-anchor-id="key-caveats-for-phase-5">8. Key Caveats for Phase 5</h2>
+<ol type="1">
+<li><strong>CS Phase A binary λ_CF is unreliable</strong> (−0.107 due to n=9 noise in 2020 cold data). Use granular λ_CF (0.358) for CS in all downstream calculations.</li>
+<li><strong>CAZ+ Phase B λ_Proactive = 0 [floored]</strong>: Phase 5 reconciliation will scale down CF and enforcement matrix contributions. Expect proactive transition elements to be zeroed in P_Total for this group.</li>
+<li><strong>CS IIIB and IV kW cells</strong> have n=1 each — substitute group-level mean (172 kW) for emissions estimation.</li>
+<li><strong>Emission factors are placeholders</strong> — emissions output (Phase 6) cannot be treated as final until EF values are validated.</li>
+</ol>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

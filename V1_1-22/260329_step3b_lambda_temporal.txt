@@ -1,0 +1,161 @@
+════════════════════════════════════════════════════════════════════════
+SEGMENT DEFINITIONS
+────────────────────────────────────────────────────────────────────────
+Phase B: 2020-09-01 to 2024-12-31  (1582 days)
+Segment duration: 527.3 days (~1.44 years) each
+
+  seg      start        end        mid mid_year duration
+1   1 2020-09-01 2022-02-09 2021-05-23 2021.389      527
+2   2 2022-02-10 2023-07-22 2022-11-01 2022.832      528
+3   3 2023-07-23 2024-12-31 2024-04-12 2024.278      528
+════════════════════════════════════════════════════════════════════════
+GROUP: CAZ_Plus
+────────────────────────────────────────────────────────────────────────
+Records per segment (all stages combined):
+# A tibble: 3 × 6
+    seg n_records start      end        mid        mid_year
+  <int>     <int> <date>     <date>     <date>        <dbl>
+1     1        86 2020-09-01 2022-02-09 2021-05-23    2021.
+2     2        72 2022-02-10 2023-07-22 2022-11-01    2023.
+3     3        83 2023-07-23 2024-12-31 2024-04-12    2024.
+
+Stage counts per segment:
+# A tibble: 3 × 6
+    seg    II  IIIA  IIIB    IV     V
+  <int> <int> <int> <int> <int> <int>
+1     1     1     8    19    40    18
+2     2     0     4    12    19    37
+3     3     0     1    18    16    48
+
+Stage proportions per segment:
+# A tibble: 3 × 6
+    seg    II  IIIA  IIIB    IV     V
+  <int> <dbl> <dbl> <dbl> <dbl> <dbl>
+1     1 0.012 0.093 0.221 0.465 0.209
+2     2 0     0.056 0.167 0.264 0.514
+3     3 0     0.012 0.217 0.193 0.578
+
+GLS rows (delta is annualised by dividing by dt):
+# A tibble: 10 × 7
+   seg_pair stage stage_label predictor   delta weight    dt
+   <chr>    <int> <chr>           <dbl>   <dbl>  <dbl> <dbl>
+ 1 1->2         1 I              0       0           1  1.44
+ 2 1->2         2 II            -0.0116 -0.0081      1  1.44
+ 3 1->2         3 IIIA          -0.0901 -0.026       8  1.44
+ 4 1->2         4 IIIB          -0.187  -0.0376     19  1.44
+ 5 1->2         5 IV            -0.321  -0.140      40  1.44
+ 6 2->3         1 I              0       0           1  1.45
+ 7 2->3         2 II             0       0           1  1.45
+ 8 2->3         3 IIIA          -0.0556 -0.0301      4  1.45
+ 9 2->3         4 IIIB          -0.148   0.0347     12  1.45
+10 2->3         5 IV            -0.162  -0.0492     19  1.45
+
+λ_CF estimates:
+  CAZ_Plus temporal 3-seg (all pairs)                   λ = 0.3629  SE = 0.0517  95% CI [ 0.2615,  0.4642]
+  CAZ_Plus seg 1->2 only                                λ = 0.4009  SE = 0.0407  95% CI [ 0.3211,  0.4808]
+  CAZ_Plus seg 2->3 only                                λ = 0.1246  SE = 0.1296  95% CI [-0.1295,  0.3787]
+
+════════════════════════════════════════════════════════════════════════
+GROUP: Constant_Speed
+────────────────────────────────────────────────────────────────────────
+Records per segment (all stages combined):
+# A tibble: 3 × 6
+    seg n_records start      end        mid        mid_year
+  <int>     <int> <date>     <date>     <date>        <dbl>
+1     1        46 2020-09-01 2022-02-09 2021-05-23    2021.
+2     2        18 2022-02-10 2023-07-22 2022-11-01    2023.
+3     3        35 2023-07-23 2024-12-31 2024-04-12    2024.
+
+Stage counts per segment:
+# A tibble: 3 × 4
+    seg    II  IIIA     V
+  <int> <int> <int> <int>
+1     1     2    44     0
+2     2     4    14     0
+3     3     2    16    17
+
+Stage proportions per segment:
+# A tibble: 3 × 4
+    seg    II  IIIA     V
+  <int> <dbl> <dbl> <dbl>
+1     1 0.043 0.957 0    
+2     2 0.222 0.778 0    
+3     3 0.057 0.457 0.486
+
+GLS rows (delta is annualised by dividing by dt):
+# A tibble: 10 × 7
+   seg_pair stage stage_label predictor  delta weight    dt
+   <chr>    <int> <chr>           <dbl>  <dbl>  <dbl> <dbl>
+ 1 1->2         1 I              0       0          1  1.44
+ 2 1->2         2 II            -0.0435  0.124      2  1.44
+ 3 1->2         3 IIIA          -0.946  -0.124     44  1.44
+ 4 1->2         4 IIIB           0.330   0          1  1.44
+ 5 1->2         5 IV             0.330   0          1  1.44
+ 6 2->3         1 I              0       0          1  1.45
+ 7 2->3         2 II            -0.222  -0.114      4  1.45
+ 8 2->3         3 IIIA          -0.722  -0.222     14  1.45
+ 9 2->3         4 IIIB           0.315   0          1  1.45
+10 2->3         5 IV             0.315   0          1  1.45
+
+λ_CF estimates:
+  Constant_Speed temporal 3-seg (all pairs)             λ = 0.1584  SE = 0.0248  95% CI [ 0.1099,  0.2069]
+  Constant_Speed seg 1->2 only                          λ = 0.1300  SE = 0.0153  95% CI [ 0.0999,  0.1601]
+  Constant_Speed seg 2->3 only                          λ = 0.3045  SE = 0.0297  95% CI [ 0.2464,  0.3627]
+
+════════════════════════════════════════════════════════════════════════
+GROUP: Rest_of_London
+────────────────────────────────────────────────────────────────────────
+Records per segment (all stages combined):
+# A tibble: 3 × 6
+    seg n_records start      end        mid        mid_year
+  <int>     <int> <date>     <date>     <date>        <dbl>
+1     1       386 2020-09-01 2022-02-09 2021-05-23    2021.
+2     2       293 2022-02-10 2023-07-22 2022-11-01    2023.
+3     3       238 2023-07-23 2024-12-31 2024-04-12    2024.
+
+Stage counts per segment:
+# A tibble: 3 × 7
+    seg     I    II  IIIA  IIIB    IV     V
+  <int> <int> <int> <int> <int> <int> <int>
+1     1     1     8    20   193    96    68
+2     2     1     8    15   109    58   102
+3     3     2     2     6    48    40   140
+
+Stage proportions per segment:
+# A tibble: 3 × 7
+    seg     I    II  IIIA  IIIB    IV     V
+  <int> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+1     1 0.003 0.021 0.052 0.5   0.249 0.176
+2     2 0.003 0.027 0.051 0.372 0.198 0.348
+3     3 0.008 0.008 0.025 0.202 0.168 0.588
+
+GLS rows (delta is annualised by dividing by dt):
+# A tibble: 10 × 7
+   seg_pair stage stage_label predictor   delta weight    dt
+   <chr>    <int> <chr>           <dbl>   <dbl>  <dbl> <dbl>
+ 1 1->2         1 I             -0.0026  0.0006      1  1.44
+ 2 1->2         2 II            -0.0202  0.0046      8  1.44
+ 3 1->2         3 IIIA          -0.0461 -0.0004     20  1.44
+ 4 1->2         4 IIIB          -0.477  -0.0887    193  1.44
+ 5 1->2         5 IV             0.0243 -0.0352     96  1.44
+ 6 2->3         1 I             -0.0034  0.0035      1  1.45
+ 7 2->3         2 II            -0.0266 -0.0131      8  1.45
+ 8 2->3         3 IIIA          -0.0437 -0.018      15  1.45
+ 9 2->3         4 IIIB          -0.347  -0.118     109  1.45
+10 2->3         5 IV             0.0126 -0.0207     58  1.45
+
+λ_CF estimates:
+  Rest_of_London temporal 3-seg (all pairs)             λ = 0.2192  SE = 0.0289  95% CI [ 0.1625,  0.2760]
+  Rest_of_London seg 1->2 only                          λ = 0.1836  SE = 0.0295  95% CI [ 0.1258,  0.2414]
+  Rest_of_London seg 2->3 only                          λ = 0.3379  SE = 0.0263  95% CI [ 0.2864,  0.3894]
+
+════════════════════════════════════════════════════════════════════════
+COMPARISON: temporal 3-segment vs original annual estimates (step 2)
+────────────────────────────────────────────────────────────────────────
+Original annual estimates (step 2, years 2021-2024, year >= 2021 filter):
+  Constant_Speed:  λ = 0.1760  SE = 0.0408  CI [0.0960, 0.2560]
+  CAZ_Plus:        λ = 0.6384  SE = 0.1021  CI [0.4384, 0.8385]
+  Rest_of_London:  λ = 0.2499  SE = 0.0354  CI [0.1806, 0.3192]
+
+Temporal estimates include 2020B records; use 3 equal segments across full
+Phase B; Δp annualised by dividing by years between segment midpoints.

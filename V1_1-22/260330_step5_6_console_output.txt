@@ -1,0 +1,328 @@
+══ P_TOTAL MATRICES (Phase B rates, Scenario A) ══
+
+── Constant_Speed  (λ=0.2126) ──
+      to
+from       II   IIIA      V
+  II   0.7874 0.1063 0.1063
+  IIIA 0.0000 0.7874 0.2126
+  V    0.0000 0.0000 1.0000
+
+── CAZ_Plus  (λ=0.3109) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.6891 0.0622 0.0622 0.0622 0.0622 0.0622
+  II   0.0000 0.6891 0.0777 0.0777 0.0777 0.0777
+  IIIA 0.0000 0.0000 0.6891 0.1036 0.1036 0.1036
+  IIIB 0.0000 0.0000 0.0000 0.6891 0.1554 0.1554
+  IV   0.0000 0.0000 0.0000 0.0000 0.6891 0.3109
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+── Rest_of_London  (λ=0.2649) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7351 0.0530 0.0530 0.0530 0.0530 0.0530
+  II   0.0000 0.7351 0.0662 0.0662 0.0662 0.0662
+  IIIA 0.0000 0.0000 0.7351 0.0883 0.0883 0.0883
+  IIIB 0.0000 0.0000 0.0000 0.7351 0.1325 0.1325
+  IV   0.0000 0.0000 0.0000 0.0000 0.7351 0.2649
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+══ 2024 STARTING COUNTS ══
+  Constant_Speed   n = 111
+  CAZ_Plus         n = 376
+  Rest_of_London   n = 813
+
+  Variable_Speed (merged):  λ = 0.2794  n = 1189
+
+── P_Total Variable_Speed (merged) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0559 0.0559 0.0559 0.0559 0.0559
+  II   0.0000 0.7206 0.0699 0.0699 0.0699 0.0699
+  IIIA 0.0000 0.0000 0.7206 0.0931 0.0931 0.0931
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.1397 0.1397
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+══ SCENARIO B MATRICES ══
+
+── CS (Phase C threshold = V) ──
+      to
+from       II   IIIA      V
+  II   0.7874 0.0000 0.2126
+  IIIA 0.0000 0.7874 0.2126
+  V    0.0000 0.0000 1.0000
+
+── Variable Speed 2025-2029 (threshold = IV) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0000 0.0000 0.0000 0.1397 0.1397
+  II   0.0000 0.7206 0.0000 0.0000 0.1397 0.1397
+  IIIA 0.0000 0.0000 0.7206 0.0000 0.1397 0.1397
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.1397 0.1397
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+── Variable Speed 2030 (threshold = V) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0000 0.0000 0.0000 0.0000 0.2794
+  II   0.0000 0.7206 0.0000 0.0000 0.0000 0.2794
+  IIIA 0.0000 0.0000 0.7206 0.0000 0.0000 0.2794
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.0000 0.2794
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+══ FORECAST STAGE PROPORTIONS ══
+
+── Constant Speed ──
+          year stage prop_A prop_B
+II...1    2025    II 0.0071 0.0071
+IIIA...2  2025  IIIA 0.2705 0.2696
+V...3     2025     V 0.7224 0.7233
+II...4    2026    II 0.0056 0.0056
+IIIA...5  2026  IIIA 0.2138 0.2123
+V...6     2026     V 0.7807 0.7822
+II...7    2027    II 0.0044 0.0044
+IIIA...8  2027  IIIA 0.1689 0.1671
+V...9     2027     V 0.8267 0.8285
+II...10   2028    II 0.0035 0.0035
+IIIA...11 2028  IIIA 0.1335 0.1316
+V...12    2028     V 0.8631 0.8649
+II...13   2029    II 0.0027 0.0027
+IIIA...14 2029  IIIA 0.1055 0.1036
+V...15    2029     V 0.8918 0.8937
+II...16   2030    II 0.0021 0.0021
+IIIA...17 2030  IIIA 0.0833 0.0816
+V...18    2030     V 0.9145 0.9163
+
+── Variable Speed (merged) ──
+          year stage prop_A prop_B
+I...1     2025     I 0.0006 0.0006
+II...2    2025    II 0.0025 0.0024
+IIIA...3  2025  IIIA 0.0051 0.0048
+IIIB...4  2025  IIIB 0.0997 0.0988
+IV...5    2025    IV 0.1667 0.1673
+V...6     2025     V 0.7254 0.7260
+I...7     2026     I 0.0004 0.0004
+II...8    2026    II 0.0018 0.0017
+IIIA...9  2026  IIIA 0.0039 0.0035
+IIIB...10 2026  IIIB 0.0725 0.0712
+IV...11   2026    IV 0.1347 0.1355
+V...12    2026     V 0.7866 0.7877
+I...13    2027     I 0.0003 0.0003
+II...14   2027    II 0.0013 0.0013
+IIIA...15 2027  IIIA 0.0030 0.0025
+IIIB...16 2027  IIIB 0.0528 0.0513
+IV...17   2027    IV 0.1077 0.1084
+V...18    2027     V 0.8349 0.8363
+I...19    2028     I 0.0002 0.0002
+II...20   2028    II 0.0010 0.0009
+IIIA...21 2028  IIIA 0.0022 0.0018
+IIIB...22 2028  IIIB 0.0384 0.0370
+IV...23   2028    IV 0.0854 0.0858
+V...24    2028     V 0.8728 0.8743
+I...25    2029     I 0.0002 0.0002
+II...26   2029    II 0.0007 0.0007
+IIIA...27 2029  IIIA 0.0017 0.0013
+IIIB...28 2029  IIIB 0.0280 0.0266
+IV...29   2029    IV 0.0672 0.0674
+V...30    2029     V 0.9023 0.9038
+I...31    2030     I 0.0001 0.0001
+II...32   2030    II 0.0005 0.0005
+IIIA...33 2030  IIIA 0.0013 0.0009
+IIIB...34 2030  IIIB 0.0204 0.0192
+IV...35   2030    IV 0.0525 0.0486
+V...36    2030     V 0.9252 0.9307
+
+══ FORECAST COMPLIANCE % ══
+# A tibble: 12 × 4
+   group           year pct_A pct_B
+   <chr>          <int> <dbl> <dbl>
+ 1 Constant_Speed  2025  72.2  72.3
+ 2 Constant_Speed  2026  78.1  78.2
+ 3 Constant_Speed  2027  82.7  82.8
+ 4 Constant_Speed  2028  86.3  86.5
+ 5 Constant_Speed  2029  89.2  89.4
+ 6 Constant_Speed  2030  91.5  91.6
+ 7 Variable_Speed  2025  89.2  89.3
+ 8 Variable_Speed  2026  92.1  92.3
+ 9 Variable_Speed  2027  94.3  94.5
+10 Variable_Speed  2028  95.8  96  
+11 Variable_Speed  2029  96.9  97.1
+12 Variable_Speed  2030  92.5  93.1
+
+══ NOx EMISSIONS  [kg/yr — ⚠ PLACEHOLDER EFs] ══
+# A tibble: 12 × 4
+   group           year tonnes_ScenA tonnes_ScenB
+   <chr>          <int>        <dbl>        <dbl>
+ 1 Constant_Speed  2025         64.3         64.1
+ 2 Constant_Speed  2026         53.5         53.2
+ 3 Constant_Speed  2027         44.9         44.6
+ 4 Constant_Speed  2028         38.2         37.8
+ 5 Constant_Speed  2029         32.8         32.5
+ 6 Constant_Speed  2030         28.6         28.3
+ 7 Variable_Speed  2025        247.         246. 
+ 8 Variable_Speed  2026        211.         210. 
+ 9 Variable_Speed  2027        182.         181. 
+10 Variable_Speed  2028        160.         159. 
+11 Variable_Speed  2029        143.         141. 
+12 Variable_Speed  2030        129.         126. 
+
+  Saved: 260330_plot1_transition_heatmap.png
+  Saved: 260330_plot2_forecast_stages.png
+  Saved: 260330_plot3_compliance_trajectory.png
+  Saved: 260330_plot4_nox_forecast.png
+
+Saved: 260330_step5_6_results.RData
+Objects: P_grp, P_vs, P_cs_B, P_vs_B_IV, P_vs_B_V
+         C0, C0_vs, lam_vs
+         fc_cs, fc_vs, fc_all, fc_comp, em_all
+= 813
+
+  Variable_Speed (merged):  λ = 0.2794  n = 1189
+
+── P_Total Variable_Speed (merged) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0559 0.0559 0.0559 0.0559 0.0559
+  II   0.0000 0.7206 0.0699 0.0699 0.0699 0.0699
+  IIIA 0.0000 0.0000 0.7206 0.0931 0.0931 0.0931
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.1397 0.1397
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+══ SCENARIO B MATRICES ══
+
+── CS (Phase C threshold = V) ──
+      to
+from       II   IIIA      V
+  II   0.7874 0.0000 0.2126
+  IIIA 0.0000 0.7874 0.2126
+  V    0.0000 0.0000 1.0000
+
+── Variable Speed 2025-2029 (threshold = IV) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0000 0.0000 0.0000 0.1397 0.1397
+  II   0.0000 0.7206 0.0000 0.0000 0.1397 0.1397
+  IIIA 0.0000 0.0000 0.7206 0.0000 0.1397 0.1397
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.1397 0.1397
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+── Variable Speed 2030 (threshold = V) ──
+      to
+from        I     II   IIIA   IIIB     IV      V
+  I    0.7206 0.0000 0.0000 0.0000 0.0000 0.2794
+  II   0.0000 0.7206 0.0000 0.0000 0.0000 0.2794
+  IIIA 0.0000 0.0000 0.7206 0.0000 0.0000 0.2794
+  IIIB 0.0000 0.0000 0.0000 0.7206 0.0000 0.2794
+  IV   0.0000 0.0000 0.0000 0.0000 0.7206 0.2794
+  V    0.0000 0.0000 0.0000 0.0000 0.0000 1.0000
+
+══ FORECAST STAGE PROPORTIONS ══
+
+── Constant Speed ──
+          year stage prop_A prop_B
+II...1    2025    II 0.0071 0.0071
+IIIA...2  2025  IIIA 0.2705 0.2696
+V...3     2025     V 0.7224 0.7233
+II...4    2026    II 0.0056 0.0056
+IIIA...5  2026  IIIA 0.2138 0.2123
+V...6     2026     V 0.7807 0.7822
+II...7    2027    II 0.0044 0.0044
+IIIA...8  2027  IIIA 0.1689 0.1671
+V...9     2027     V 0.8267 0.8285
+II...10   2028    II 0.0035 0.0035
+IIIA...11 2028  IIIA 0.1335 0.1316
+V...12    2028     V 0.8631 0.8649
+II...13   2029    II 0.0027 0.0027
+IIIA...14 2029  IIIA 0.1055 0.1036
+V...15    2029     V 0.8918 0.8937
+II...16   2030    II 0.0021 0.0021
+IIIA...17 2030  IIIA 0.0833 0.0816
+V...18    2030     V 0.9145 0.9163
+
+── Variable Speed (merged) ──
+          year stage prop_A prop_B
+I...1     2025     I 0.0006 0.0006
+II...2    2025    II 0.0025 0.0024
+IIIA...3  2025  IIIA 0.0051 0.0048
+IIIB...4  2025  IIIB 0.0997 0.0988
+IV...5    2025    IV 0.1667 0.1673
+V...6     2025     V 0.7254 0.7260
+I...7     2026     I 0.0004 0.0004
+II...8    2026    II 0.0018 0.0017
+IIIA...9  2026  IIIA 0.0039 0.0035
+IIIB...10 2026  IIIB 0.0725 0.0712
+IV...11   2026    IV 0.1347 0.1355
+V...12    2026     V 0.7866 0.7877
+I...13    2027     I 0.0003 0.0003
+II...14   2027    II 0.0013 0.0013
+IIIA...15 2027  IIIA 0.0030 0.0025
+IIIB...16 2027  IIIB 0.0528 0.0513
+IV...17   2027    IV 0.1077 0.1084
+V...18    2027     V 0.8349 0.8363
+I...19    2028     I 0.0002 0.0002
+II...20   2028    II 0.0010 0.0009
+IIIA...21 2028  IIIA 0.0022 0.0018
+IIIB...22 2028  IIIB 0.0384 0.0370
+IV...23   2028    IV 0.0854 0.0858
+V...24    2028     V 0.8728 0.8743
+I...25    2029     I 0.0002 0.0002
+II...26   2029    II 0.0007 0.0007
+IIIA...27 2029  IIIA 0.0017 0.0013
+IIIB...28 2029  IIIB 0.0280 0.0266
+IV...29   2029    IV 0.0672 0.0674
+V...30    2029     V 0.9023 0.9038
+I...31    2030     I 0.0001 0.0001
+II...32   2030    II 0.0005 0.0005
+IIIA...33 2030  IIIA 0.0013 0.0009
+IIIB...34 2030  IIIB 0.0204 0.0192
+IV...35   2030    IV 0.0525 0.0486
+V...36    2030     V 0.9252 0.9307
+
+══ FORECAST COMPLIANCE % ══
+# A tibble: 12 × 4
+   group           year pct_A pct_B
+   <chr>          <int> <dbl> <dbl>
+ 1 Constant_Speed  2025  72.2  72.3
+ 2 Constant_Speed  2026  78.1  78.2
+ 3 Constant_Speed  2027  82.7  82.8
+ 4 Constant_Speed  2028  86.3  86.5
+ 5 Constant_Speed  2029  89.2  89.4
+ 6 Constant_Speed  2030  91.5  91.6
+ 7 Variable_Speed  2025  89.2  89.3
+ 8 Variable_Speed  2026  92.1  92.3
+ 9 Variable_Speed  2027  94.3  94.5
+10 Variable_Speed  2028  95.8  96  
+11 Variable_Speed  2029  96.9  97.1
+12 Variable_Speed  2030  92.5  93.1
+
+══ NOx EMISSIONS  [kg/yr — ⚠ PLACEHOLDER EFs] ══
+# A tibble: 12 × 4
+   group           year tonnes_ScenA tonnes_ScenB
+   <chr>          <int>        <dbl>        <dbl>
+ 1 Constant_Speed  2025         64.3         64.1
+ 2 Constant_Speed  2026         53.5         53.2
+ 3 Constant_Speed  2027         44.9         44.6
+ 4 Constant_Speed  2028         38.2         37.8
+ 5 Constant_Speed  2029         32.8         32.5
+ 6 Constant_Speed  2030         28.6         28.3
+ 7 Variable_Speed  2025        247.         246. 
+ 8 Variable_Speed  2026        211.         210. 
+ 9 Variable_Speed  2027        182.         181. 
+10 Variable_Speed  2028        160.         159. 
+11 Variable_Speed  2029        143.         141. 
+12 Variable_Speed  2030        129.         126. 
+
+  Saved: 260330_plot1_transition_heatmap.png
+  Saved: 260330_plot2_forecast_stages.png
+  Saved: 260330_plot3_compliance_trajectory.png
+  Saved: 260330_plot4_nox_forecast.png
+
+Saved: 260330_step5_6_results.RData
+Objects: P_grp, P_vs, P_cs_B, P_vs_B_IV, P_vs_B_V
+         C0, C0_vs, lam_vs
+         fc_cs, fc_vs, fc_all, fc_comp, em_all
