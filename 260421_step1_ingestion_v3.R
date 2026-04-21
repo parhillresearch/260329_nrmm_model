@@ -1,4 +1,4 @@
-# 260413_step1_ingestion_v3.R
+# 260421_step1_ingestion_v3.R
 # NRMM LEZ Trend Analysis — Step 1: Data Ingestion and Preparation (v3)
 #
 # Director review amendments (director_review_step1.md):
@@ -23,8 +23,8 @@
 #   audits.rds     — expanded tibble (row-duplicated VS rows; group + group_primary)
 #   exclusions.rds — pipeline-excluded records with excl_reason label
 # Outputs (outputs/):
-#   260413_step1_ingestion_v2.md  — all tables + plot references
-#   260413_step1_ingestion_v2_*.png — plots
+#   260421_step1_ingestion_v3.md  — all tables + plot references
+#   260421_step1_ingestion_v3_*.png — plots
 #   legacy individual count .md files (backward-compat. with Step 6 report)
 
 library(tidyverse)
@@ -38,7 +38,7 @@ INPUT_FILE    <- "audits.txt"
 OUT_DIR       <- "intermediate"
 OUTPUTS_DIR   <- "outputs"
 MANIFEST_FILE <- file.path(OUT_DIR, "manifest.md")
-SCRIPT_STEM   <- "260413_step1_ingestion_v3"
+SCRIPT_STEM   <- "260421_step1_ingestion_v3"
 OUTPUT_MD     <- file.path(OUTPUTS_DIR, paste0(SCRIPT_STEM, ".md"))
 
 COLS_KEEP <- c(
@@ -195,7 +195,7 @@ writeLines(c(
   ""
 ), OUTPUT_MD)
 
-message("=== ", SCRIPT_STEM, " — NRMM Step 1 (v2) ===\n")
+message("=== ", SCRIPT_STEM, " — NRMM Step 1 (v3) ===\n")
 
 # ── 1. Import ────────────────────────────────────────────────────────────────────
 raw <- read.delim(INPUT_FILE, stringsAsFactors = FALSE, check.names = TRUE) |>
@@ -906,7 +906,7 @@ manifest_entries <- tibble(
     paste0(nrow(audits),     " x ", ncol(audits)),
     paste0(nrow(exclusions), " x ", ncol(exclusions))
   ),
-  step  = "step1v2",
+  step  = "step1v3",
   description = c(
     paste0(
       "Expanded audit records: ", n_unique_records, " unique records + ",
@@ -921,7 +921,7 @@ update_manifest(manifest_entries)
 message("Manifest updated: ", MANIFEST_FILE)
 
 # Console summary
-message("\n=== OBJECTS SAVED (step 1 v2) ===")
+message("\n=== OBJECTS SAVED (step 1 v3) ===")
 message(sprintf("  %-15s  %-7s  %s", "object", "class", "dim"))
 message(sprintf("  %-15s  %-7s  %d x %d", "audits",     "tbl_df", nrow(audits),     ncol(audits)))
 message(sprintf("  %-15s  %-7s  %d x %d", "exclusions", "tbl_df", nrow(exclusions), ncol(exclusions)))

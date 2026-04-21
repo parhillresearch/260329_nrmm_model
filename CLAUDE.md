@@ -9,7 +9,7 @@ Evaluate the NRMM LEZ policy by analysing audit data that records the emissions 
 - R version: 4.3.1
 - Core packages: tidyverse, broom, emmeans, ggplot2, nlme, boot, kableExtra
 - No data.table. Use set.seed(42) in any stochastic step.
-- Script naming convention: YYMMDD_stepN_description_vM.R where M is the trial number (e.g. 260401_step5_forecast_v1.R for Trial 1, 260401_step5_forecast_v2.R for Trial 2). The date is the date the first version was written; it does not change on subsequent trials.
+- Script naming convention: YYMMDD_stepN_description_vM.R where M is the trial number (e.g. 260401_step5_forecast_v1.R for Trial 1, 260401_step5_forecast_v2.R for Trial 2). The date is the date the version was written.
 - Outputs saved to outputs/ with matching filename stem; the stem increments with M so each trial's outputs are preserved alongside its script.
 
 ## Key files
@@ -28,7 +28,7 @@ Evaluate the NRMM LEZ policy by analysing audit data that records the emissions 
 
 - The user examines the new script, runs a trial of each script in their own R session, inspects the results.
 - Reports back to Claude on whether outputs are accepted and the step is complete, or whether adjustments are needed.
-- If adjustments are needed, Claude writes a new script at the next version number (e.g. _v2.R), does not overwrite the previous version, amends relevant documents (draft_plan.md, schema.md, decisions.md) based on user instructions, updates sprint_log.md, and a new trial is run. Previous script versions are retained as an audit trail.
+- If adjustments are needed, Claude writes a new script at the next version number (e.g. \_v2.R), does not overwrite the previous version, amends relevant documents (draft_plan.md, schema.md, decisions.md) based on user instructions, updates sprint_log.md, and a new trial is run. Previous script versions are retained as an audit trail.
 - **Trigger phrase: "step complete"** (or close equivalent such as "done", "accepted", "finish the step"). On receiving this, Claude must: (1) read the step's output .md file and the console output the user has pasted, (2) append the `## Step Report` section to the output .md file, (3) mark the trial complete in sprint_log.md.
 
 ## Coding conventions
@@ -53,7 +53,7 @@ Evaluate the NRMM LEZ policy by analysing audit data that records the emissions 
 
 When a trial is accepted, Claude appends a `## Step Report` section to the step's output .md file. Claude reads the output tables and console output before writing it. Structure:
 
-```
+```         
 ## Step Report
 
 ### Intended tasks
