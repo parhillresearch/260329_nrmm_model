@@ -26,8 +26,8 @@ One trial = one execution of a step script in a clean context, followed by user 
 - [x] **Trial 2** \| 14 Apr 2026 \| Executed; record counts by group × phase accepted; P24 temporal extent confirmed; anomaly flags reviewed.
   - Found: `audits` saved as `data.frame` not `tbl_df`; downstream impact assessed as irrelevant (all Steps 2–5 use dplyr/tidyr verbs which handle both identically).
   - Action: None.
-- [ ] **Trial 3** \| 21 Apr 2026 \| Script: `260413_step1_ingestion_v2.R` — written; awaiting first execution and user review.
-  - Director review amendments: (1) vs_member flag + audits_vs.rds for continuous Variable_Speed analysis; (2) check for unexpected group/zone codes; (3) checksum table confirming group accounting; (4) new Step 1.5 — statistics and stacked bar charts for excluded records, stages, non-compliance codes, group × engagement, vs_member continuous, pre-2016; (5) new Step 1.6 — formal checksum verification (raw = retained + all exclusions).
+- [ ] **Trial 3** \| 21 Apr 2026 \| Script: `260413_step1_ingestion_v3.R` — written; awaiting first execution and user review.
+  - Director review amendments: (1) Variable_Speed made continuous via row duplication — CAZ_Plus/RoL records appear in both their zone group and in Variable_Speed; group_primary column for deduplication; (2) check for unexpected group/zone codes; (3) checksum table (5 checks, pipeline + group + phase levels); (4) new Step 1.5 — statistics and stacked bar charts for excluded records, stages (all + faceted by group), non-compliance codes, group × engagement, Variable_Speed continuous, pre-2016; (5) new Step 1.6 — formal checksum verification (raw = unique_retained + all exclusions).
 
 ### Step 2 — Exploratory analysis
 
