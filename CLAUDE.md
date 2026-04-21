@@ -45,8 +45,8 @@ Evaluate the NRMM LEZ policy by analysing audit data that records the emissions 
 
 - Intermediate objects: saveRDS() to intermediate/, with manifest update (see Workflow)
 - Summary tables: knitr::kable() to console and to a single file `outputs/YYMMDD_stepN_description_vM.md` matching the script filename stem; all tables for the step written to that one file, overwriting on each run
-- **Table layout convention (all steps):** phases or time periods form a super-header across columns, with stages (I, II, IIIA, …) or other sub-metrics as sub-columns beneath each phase header. Rows follow a fixed two-level index: outer = group in order {Constant_Speed, CAZ_Plus, Rest_of_London, Variable_Speed}; inner = any further breakdown (cold/warm, compliance route, etc.). Variable_Speed rows appear in every table; cells are left blank (`—`) for phases where that group has no data. Tables in the output `.md` file must render with visible phase super-headers spanning their sub-columns (output is viewed in Typora and Positron, both of which render inline HTML).
-- Plots: ggsave() to outputs/, 180dpi, 16x10cm unless specified; immediately after each ggsave() call write a markdown image line to the output .md file: `![<caption>](<filename.png>)` so the plot renders inline
+- **Table layout convention (Steps 3–5):** For any table with a **group × phase** structure, output **one kable per group** in the fixed order {Constant_Speed, CAZ_Plus, Rest_of_London, Variable_Speed}. Each group's table has phases (A1, A2, B1/B2/B3 when Phase B is sub-segmented, C) as **columns** and statistics or parameters (counts, percentages, estimates, SEs, etc.) as **rows**; add a "Phase" super-header spanning all phase columns via `add_header_above`. Phase columns for which that group has no data show `—` throughout every row. For tables with a **group-only** dimension (no phase breakdown, e.g. λ_CF, λ_Proactive), use a single table with groups as rows and statistics as columns. All tables output as inline HTML (`kableExtra`, `format = "html"`); output is viewed in Typora and Positron.
+- **Plots:** At every opportunity where data has a group × phase or group × time structure, produce an illustrative plot alongside the tables. Use stacked bar charts for count/composition breakdowns, grouped bars or lines for rate/estimate comparisons. Prefer one faceted figure per section (`facet_wrap(~group, nrow = 2)`) over multiple separate figures. Every table and every plot image must be followed by exactly two lines of plain-English explanatory text. Save with `ggsave()` to `outputs/`, 180 dpi, 16×12 cm for faceted plots or 16×10 cm for single-panel unless otherwise specified; immediately after each `ggsave()` call write a markdown image line `![<caption>](<relative_filename.png>)` to the output `.md` file so the plot renders inline.
 - Each script ends with a sessionInfo() call
 
 **Step Report (written by Claude, not the R script)**
@@ -61,9 +61,8 @@ When a trial is accepted, Claude appends a `## Step Report` section to the step'
 
 ### Results by sub-task
 <for each sub-task: interpretive prose — what was found, key numbers, patterns,
-anomalies — followed immediately by the relevant tables and plot images embedded inline.
-Every table and every plot image must be followed by exactly two lines of plain-English
-explanatory text describing what the reader is looking at and what the key takeaway is.>
+anomalies — followed immediately by the relevant tables and plot images embedded inline
+(each followed by exactly two lines of plain-English explanatory text per Output conventions).>
 ```
 
 ## Strict Instructions

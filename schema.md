@@ -116,15 +116,80 @@ Site Reference, Officer, Major/Minor, Audit #, Off-Scope, Audit Type, First Bord
 
 Phase B 3-segment midpoints (fractional years): 2021.389, 2022.832, 2024.278. Delta-t = 1.44 and 1.45 years.
 
-## Previous parameter estimates 
+## Parameter interpretation
 
-##### Table 8. Previous trial lambda_CF values
+### e-bar (ē)
 
-| Parameter           | Value | Source                                  |
-| ------------------- | ----- | --------------------------------------- |
-| lambda_CF Constant_Speed | 0.358 | step3c, 2017-2023 pooled, max_stage=3   |
-| lambda_CF CAZ+           | 0.363 | step3b, temporal 3-segment, max_stage=6 |
-| lambda_CF Rest_of_London | 0.219 | step3b, temporal 3-segment, max_stage=6 |
+ē is a **stock** measure: the percentage of all audited machines in a group–phase cell whose initial emissions stage was strictly below the minimum required threshold. It requires no conversion assumptions and is directly legible — "28% of CAZ+ machines were below the Stage IV threshold in Phase B."
+
+The *change* in ē between phases divided by elapsed time gives a compliance improvement rate in percentage points per year:
+
+```
+Δē / Δt = (ē_later − ē_earlier) / years between phase midpoints
+```
+
+This is a flow measure expressing how fast non-compliance is declining, directly answering whether the LEZ is working and at what pace.
+
+### Lambda (λ)
+
+Lambda is the **slope of mean emissions Stage over time** from a WLS regression of fleet mean stage against fractional year, weighted by cell sample size. Units: **stage integers per year**.
+
+To convert to an approximate annual machine replacement probability *p*, one additional assumption is required: that when a machine is replaced it jumps directly to the highest stage in the estimation window (the dominant real-world behaviour — operators typically buy current-generation equipment rather than second-hand intermediates).
+
+Under that assumption:
+
+```
+p = λ / avg_stage_jump
+```
+
+where `avg_stage_jump` is the difference between the replacement stage and the typical starting stage for that group.
+
+**Illustrative values from previous trials:**
+
+| Group | λ_CF | avg_stage_jump (approx.) | Implied p (% p.a.) | Implied mean machine life |
+|---|---|---|---|---|
+| Constant_Speed | 0.358 | 2 (I → IIIA) | ~18% | ~5–6 years |
+| CAZ+ | 0.363 | 3–4 (II → V) | ~10% | ~10 years |
+| Rest_of_London | 0.219 | 3–4 (I/II → IV/V) | ~6% | ~15–18 years |
+
+**Caveat:** the stage-jump assumption drives the conversion. If machines are more often traded second-hand one step at a time rather than bought new, the replacement rate is higher and implied machine lives are shorter. Lambda measures the *net fleet improvement signal*; converting it to an individual replacement probability is an ecological inference.
+
+### Enforcement success rate (descriptive metric)
+
+The Route 4/5 audit outcome data characterises enforcement intensity and effectiveness but does not yield a model parameter comparable to lambda or p. The enforcement success rate per audit event is:
+
+```
+enforcement_success_rate = n(Route 4, emissions) / n(Routes 4 + 5, emissions)
+```
+
+This is reported descriptively in Step 3 by group × phase. It answers "of non-compliant machines that were audited, what fraction were forced to comply?" — a direct policy evaluation metric. It is NOT used in transition matrix construction because it is conditional on non-compliance and expressed per audit event rather than per machine per year, making it incommensurable with p_cf and p_pro.
+
+Enforcement enters the forecast model only as the **Scenario B Boolean mask** in Step 5, which zeroes transitions that would leave a machine in a non-compliant state and rescales the remaining row probabilities. This is a structural upper-bound assumption (full enforcement effectiveness) rather than a calibrated probability.
+
+### Comparing ē and λ
+
+ē and lambda are complementary, not interchangeable:
+
+| Quantity | Type | Lay-person framing |
+|---|---|---|
+| ē | Stock: non-compliance at audit | "X% of machines on site are below standard" |
+| Δē/Δt | Flow: rate of stock change | "Non-compliance is falling by X pp per year" |
+| λ → p_cf | Flow: fleet renewal rate (counterfactual) | "~1 in N machines replaced per year without LEZ" |
+| λ_Proactive → p_pro | Flow: proactive LEZ replacement rate | "~1 in N machines additionally replaced per year due to LEZ" |
+
+For policy evaluation audiences, **Δē/Δt** is the most intuitive headline metric — it directly answers "is the LEZ working, and how fast?" without ecological inference assumptions. Lambda is required internally for transition matrix construction and forecasting.
+
+
+
+##### Table 8. Accepted parameter estimates
+
+| Parameter | Value | SE | 95% CI | N | Source |
+| --- | --- | --- | --- | --- | --- |
+| lambda_CF Constant_Speed | 0.051 ⚠ | 0.026 | [−0.017, 0.119] | 133 | step3 v3, annual 2016–2023, max_stage=3 |
+| lambda_CF CAZ+ | 0.262 | 0.033 | [0.119, 0.404] | 361 | step3 v3, A1/A2 pooled + B 3-seg, max_stage=6 |
+| lambda_CF Rest_of_London | 0.241 | 0.017 | [0.169, 0.314] | 1,294 | step3 v3, A1/A2 pooled + B 3-seg, max_stage=6 |
+
+⚠ Constant_Speed λ_CF (0.051) is a large departure from the prototype reference (0.358). The 95% CI barely excludes zero. This is corroborated by λ_Policy ≈ 0 in the warm self-compliant CS fleet (N=148) and the small cold sample (N=133). Likely reflects that the generator fleet has genuine low natural turnover and inertia — machines remain in service until a compliance event forces replacement. Treat 0.051 as the operative estimate for Step 4; the old reference is superseded.
 
 ## Active state spaces
 
