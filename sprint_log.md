@@ -28,6 +28,8 @@ One trial = one execution of a step script in a clean context, followed by user 
   - Action: None.
 - [ ] **Trial 3** \| 21 Apr 2026 \| Script: `260421_step1_ingestion_v3.R` — written; awaiting first execution and user review.
   - Director review amendments: (1) Variable_Speed made continuous via row duplication — CAZ_Plus/RoL records appear in both their zone group and in Variable_Speed; group_primary column for deduplication; (2) check for unexpected group/zone codes; (3) checksum table (5 checks, pipeline + group + phase levels); (4) new Step 1.5 — statistics and stacked bar charts for excluded records, stages (all + faceted by group), non-compliance codes, group × engagement, Variable_Speed continuous, pre-2016; (5) new Step 1.6 — formal checksum verification (raw = unique_retained + all exclusions).
+- [ ] **Trial 4** \| 22 Apr 2026 \| Script: `260422_step1_ingestion_v4.R` — written; awaiting first execution and user review.
+  - Section 8c revised: (1) hierarchical NC code assignment (E > R > Other) — each machine counted once, eliminating double-counting of multi-code records; (2) compliant machine counts added to table; (3) two plots: non-compliant categories only (stacked bar), and compliant vs non-compliant together for ratio comparison.
 
 ### Step 2 — Exploratory analysis
 
