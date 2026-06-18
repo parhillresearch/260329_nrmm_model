@@ -272,7 +272,7 @@ server <- function(input, output, session) {
   output$tree <- renderVisNetwork({
     o <- outputs()
     vis_nodes <- o$nodes %>%
-      mutate(color = fill, font = list(color = "white", size = 14), shape = "box")
+      mutate(color = fill, font = list(list(color = "white", size = 14)), shape = "box")
     visNetwork(vis_nodes, o$edges) %>%
       visEdges(arrows = "to") %>%
       visHierarchicalLayout(direction = "UD")
