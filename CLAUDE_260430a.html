@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>claude_260430a</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="CLAUDE_260430a_files/libs/clipboard/clipboard.min.js"></script>
+<script src="CLAUDE_260430a_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="CLAUDE_260430a_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="CLAUDE_260430a_files/libs/quarto-html/popper.min.js"></script>
+<script src="CLAUDE_260430a_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="CLAUDE_260430a_files/libs/quarto-html/anchor.min.js"></script>
+<link href="CLAUDE_260430a_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="CLAUDE_260430a_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="CLAUDE_260430a_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="CLAUDE_260430a_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="CLAUDE_260430a_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="context" class="level2">
+<h2 class="anchored" data-anchor-id="context">Context</h2>
+<p>This is a exploratory data science project in R to evaluate a Low Emissions Zone (LEZ) by analysing data from 16,251 machine audits. The LEZ requires individual machines to meet specified emissions standard that vary with location, date of use and type of machine. If it does not meet the standard, then it must be replaced or removed, or else face sanction.</p>
+<p>The data are cross sectional samples of the machinery fleet in the period 2016-2025 inclusive. Each audit determine the machines emission standard stage (I, II, IIIA, IIIB, IV, or V, where V is the cleanest).</p>
+<p>The audits are classified:</p>
+<ul>
+<li><p><strong>Cold-engaged</strong> — machines not registered with the LEZ, itself illegal, which we use as the Counter Factual sample.</p></li>
+<li><p><strong>Warm-engaged</strong> — machines were registered with the NRMM LEZ (treatment group subject to policy)</p></li>
+</ul>
+<p>The analytical objectives are to:</p>
+<p>1. import and cleanse the data;</p>
+<p>2. determine which data represents a <strong>counterfactual, CF</strong> and which <strong>actual, AT</strong>;</p>
+<p>3. derive <strong>compliance rates e-bar (</strong><span class="math inline">\(\bar c\)</span>), for CT and AT;</p>
+<p>4. derive <strong>rate of replacement of equipment,</strong> <span class="math inline">\(\bar p\)</span>, for CT and AT, using a <strong>Markov model</strong>;</p>
+<p>5. develop scenarios for <strong>future take-up</strong> of compliant equipment.</p>
+<p>6. for each period and sub-group, determine an effective <strong>Emissions Factor, EF</strong> representative of the fleet average.</p>
+</section>
+<section id="environment" class="level2">
+<h2 class="anchored" data-anchor-id="environment">Environment</h2>
+<ul>
+<li><p>R version: 4.3.1</p></li>
+<li><p>Core packages: tidyverse, broom, emmeans, ggplot2, nlme, boot, kableExtra</p></li>
+<li><p>Folders</p>
+<ul>
+<li>input_data/ contains the tab delimited audit record data file, <code>audits.txt</code>.</li>
+<li>intermediate_data/ stores intermediate R data objects generated by scripts in .Rdata format</li>
+<li>outputs/ to contain intermediate output files generated by scripts in Markdown format</li>
+<li>plans/ contains research plan documents and schema_1.md describing</li>
+<li>testing/ contains the <code>sprint_log.md</code>, the record of project trials at each step.</li>
+<li>archive/ is a user managed archive of scripts, folders and data objects developed in project completion attempts. <strong>Ignore unless specified by the user prompt.</strong></li>
+</ul></li>
+<li><p>All intermediate output is in R Markdown to the folder outputs/ with matching filename stem; the stem increments with M so each trial’s outputs are preserved alongside its script.</p></li>
+<li><p>Use set.seed(42) in any stochastic step.</p></li>
+</ul>
+</section>
+<section id="tasks" class="level2">
+<h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
+<section id="object-manifest" class="level4">
+<h4 class="anchored" data-anchor-id="object-manifest">Object Manifest</h4>
+<p>Appends rows to <code>intermediate/manifest.md</code> to describe objects created (columns: <code>step</code>, <code>object</code>, <code>file</code>, <code>class</code>, <code>dimensions</code>, <code>description</code>). Create the file in step 1, each subsequent script appends its rows to the existing file. <code>description</code> should be one sentence stating object content and filtering or transformation that produced it.</p>
+</section>
+<section id="claude-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="claude-tasks">Claude tasks</h3>
+<ul>
+<li>User specifies the Step number and provides a prompt.</li>
+<li>Claude writes and saves two files: the R script and a matching R Markdown file to <code>outputs/</code> with the same filename stem.</li>
+<li>Claude does not execute scripts.</li>
+<li>If adjustments are needed following user feedback, Claude writes a new script at the next version number (e.g.&nbsp;<code>_v2.R</code>); it never overwrites a previous version.</li>
+<li>On receiving “step complete”, Claude: (1) reads the step’s output <code>.md</code> file and any console output the user has pasted; (2) appends the <code>## Step Report</code> section to the output <code>.md</code> file; (3) marks the trial complete in <code>sprint_log.md</code>.</li>
+</ul>
+</section>
+<section id="user-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="user-tasks">User tasks</h3>
+<ul>
+<li>User examines the new script before running it.</li>
+<li>User runs the script in their own R session.</li>
+<li>User inspects: (a) whether the verification block passed cleanly or produced halts/warnings; (b) whether the analytical outputs are substantively correct.</li>
+<li>User gives feedback to Claude covering both (a) and (b).</li>
+<li>When satisfied with a trial, user sends “step complete” to trigger the Step Report.</li>
+</ul>
+</section>
+</section>
+<section id="strict-instructions" class="level2">
+<h2 class="anchored" data-anchor-id="strict-instructions">Strict Instructions</h2>
+<ul>
+<li>If prompt contains any ambiguity, ask user MCQ clarifying questions.</li>
+<li>All comments and feedback from Claude in scripts or to user to be as concise and clear as possible.</li>
+<li>Sycophancy makes the user very angry, avoid it always, especially when the prompt is impossible to deliver or wrong.</li>
+</ul>
+<section id="key-definitions-and-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="key-definitions-and-parameters">Key definitions and parameters</h3>
+<section id="s-sub-group-the-set-of-machines-audited-in-a-given-lez-period-and-group" class="level4">
+<h4 class="anchored" data-anchor-id="s-sub-group-the-set-of-machines-audited-in-a-given-lez-period-and-group">S, sub-group, the set of machines audited in a given LEZ period and group</h4>
+<p>Each <strong>S, sub-group</strong> therefore references a specified machine group and LEZ period or sub-period, e.g.&nbsp;<code>$S_CAZ^A1$</code> refers to those machines audited in the CAZ during sub-period A1.</p>
+</section>
+<section id="c-bar-bar-c-proportion-of-compliant-machines" class="level4">
+<h4 class="anchored" data-anchor-id="c-bar-bar-c-proportion-of-compliant-machines">c-bar (<span class="math inline">\(\bar c\)</span>), proportion of compliant machines</h4>
+<p><span class="math inline">\(\bar c\)</span> is the percentage of all audited machines whose emissions stage at or in follow-on action audit (columns <code>Initial Emissions Stage</code> and <code>Final Emissions Stage</code> in file <code>audits.txt</code>) met minimum required threshold for that date and location, as set out in schema.md.</p>
+<p>The <em>change</em> in <span class="math inline">\(\bar c\)</span> between phases divided by elapsed time gives a compliance improvement rate in percentage points per year:</p>
+<pre><code>Δ$\bar c$ / Δt = ($\bar c$_later − $\bar c$_earlier) / years between phase midpoints</code></pre>
+<p>This is a flow measure expressing how fast non-compliance is declining, directly answering whether the LEZ is working and at what pace.</p>
+</section>
+<section id="p-bar-bar-p-rate-of-replacement-of-equipment" class="level4">
+<h4 class="anchored" data-anchor-id="p-bar-bar-p-rate-of-replacement-of-equipment">p-bar (<span class="math inline">\(\bar p\)</span>), rate of replacement of equipment</h4>
+<p><span class="math inline">\(\bar p\)</span> is the <strong>annual average machine replacement probability</strong>, to be derived using a Weighted Least Squares regression of fleet mean stage against year or fractional year, weighted by sub-group, S, sample size, assuming machines are replaced using the highest stage on the market at the time, known to be real-world behaviour.</p>
+</section>
+<section id="modelling-approach" class="level4">
+<h4 class="anchored" data-anchor-id="modelling-approach">Modelling approach</h4>
+<p>The modelling approach is based on Markov modelling,</p>
+<p>$$<br>
+\mathbf{N}^{t+1} = \mathbf{P} \times \mathbf{N}^t<br>
+$$</p>
+<p>where is a constant 6x6 transition matrix and ^t is the vector of stage proportions at time t. This assumes stationary transition probabilities across the entire data period. This is then broken into several sub-phases during which different transition rules apply, as Previous trials found the simple model failed, as the unconstrained 6x6 matrix has 36 free parameter but only 24 observations to constrain it, as because Stage V accumulate irreversibly.<br>
+</p>
+<p>To address this, two separate matrices are estimated for each LEZ phase:</p>
+<p>$$<br>
+\mathbf{N}^{t+1} = \begin{cases} \mathbf{P}_1 \times \mathbf{N}^t &amp; \text{for } t \in [2016, 2018] (Upgrade to Stage IIIa/IIIb) \\ \mathbf{P}_2 \times \mathbf{N}^t &amp; \text{for } t \in [2019,2020](Upgrade to Stage IV) \\ \mathbf{P}_3 \times \mathbf{N}^t &amp; \text{for } t \in [2021, 2025](Upgrade to Stage IV) \\ \mathbf{P}_4 \times \mathbf{N}^t &amp; \text{for } t \in [2021, 2025](Forecast) \end{cases}<br>
+$$</p>
+<p><br>
+</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
