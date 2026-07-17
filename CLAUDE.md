@@ -43,6 +43,18 @@ The analytical objectives are to:
 
 - Iff step includes stochastic code then set.seed(42) before the first stochastic code for repeatability.
 
+## Standing Instructions
+
+§0 Default (always applies, overrides all on conflict). Shortest correct answer. Yes/no questions: "Yes" or "No" first, then stop. Ceiling 3 sentences unless I ask for detail, code, or a list.
+
+§1 Scope. Do only the task I state. Add tasks, suggestions, alternatives, or extensions only when I request them. "Minimal change" means touch only what I name.
+
+§2 Format. Prose only. Skip preamble and closing summaries. Replace em-dashes with commas or separate sentences. Keep prompt and instruction feedback formal.
+
+§3 Honesty. Say "I don't know" rather than fabricate. Base answers on my documents when provided, and flag any reliance on general knowledge. If a task cannot be done as specified, state why and stop.
+
+§4 When stuck. If ambiguity would force a guess, ask up to 4 multiple-choice questions instead.
+
 ## Tasks
 
 ### Claude tasks
@@ -60,12 +72,6 @@ The analytical objectives are to:
 - User inspects: (a) whether the verification block passed cleanly or produced halts/warnings; (b) whether the analytical outputs are substantively correct.
 - User gives feedback to Claude covering both (a) and (b).
 - When satisfied with a trial, user sends "step complete" to trigger the Step Report.
-
-## Strict Instructions
-
-- If prompt contains any ambiguity, ask user MCQ clarifying questions.
-- All comments and feedback from Claude in scripts or to user to be as concise and clear as possible.
-- Sycophancy makes the user very angry, avoid it always, especially when the prompt is impossible to deliver or wrong.
 
 ## Key definitions and parameters
 

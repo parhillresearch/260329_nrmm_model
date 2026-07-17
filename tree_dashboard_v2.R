@@ -1,14 +1,14 @@
 #!/usr/bin/env Rscript
 
-# Item 7 compliance outcome dashboard — interactive group + year selection
-# Reactive companion to tree_analysis_rol_outcome_focused.R; same derivation
-# logic, rendered with visNetwork instead of static ggraph PNGs.
+# Item 7 compliance outcome dashboard — standalone self-contained HTML export.
+# Precomputes every Group x Year combination then saves one shareable .html file
+# with client-side Group/Year dropdown switching via vis.js setData().
+# No Shiny or R installation needed to open the output.
 
 library(readr)
 library(dplyr)
-library(igraph)
-library(shiny)
 library(visNetwork)
+library(htmlwidgets)
 
 # ===== GROUP CONFIGURATION (schema.md Items 3 and 6) =====
 
@@ -50,9 +50,6 @@ if (length(missing_cols) > 0) {
 }
 
 # ===== ENGINE TYPE IMPUTATION (per Step 1 v9 modal logic) =====
-# Most pre-2019 audits have blank Engine Type. Impute via modal Engine Type
-# per Machine Type, computed from rows where Engine Type is already valid.
-# Generators excluded: near 50/50 Constant/Variable split, no reliable mode.
 
 engine_type_modal <- audits %>%
   filter(`Engine Type` %in% c("Constant", "Variable")) %>%
@@ -73,8 +70,6 @@ audits <- audits %>%
 
 # ===== DATA LAYER =====
 
-#' Shared stage/outcome derivation, applied once Engine Type/Zone filtering
-#' and per-row threshold assignment are already done.
 derive_outcomes <- function(audits_grp) {
   audits_grp %>%
     mutate(
@@ -108,10 +103,6 @@ derive_outcomes <- function(audits_grp) {
     )
 }
 
-#' Filter audits to one group and derive phase/threshold/stage/outcome/year
-#' columns. Returns the group's full date range, unfiltered by year — year
-#' filtering happens later in build_outputs() so the year dropdown can
-#' offer every year actually present in each group's data.
 process_group <- function(grp, audits) {
   audits_grp <- audits %>%
     filter(`Engine Type` == grp$engine_type, Zone %in% grp$zones) %>%
@@ -138,20 +129,15 @@ process_group <- function(grp, audits) {
   derive_outcomes(audits_grp)
 }
 
-#' Classify each row into one of the three in-scope groups by Engine Type
-#' and Zone (schema.md Item 6), for the pooled "All_Groups" category.
 classify_subgroup <- function(engine_type, zone) {
   case_when(
-    engine_type == "Constant"                            ~ "Constant_Speed",
-    engine_type == "Variable" & zone %in% c("CAZ", "OA")  ~ "CAZ_Plus",
+    engine_type == "Constant"                              ~ "Constant_Speed",
+    engine_type == "Variable" & zone %in% c("CAZ", "OA") ~ "CAZ_Plus",
     engine_type == "Variable" & zone == "GL"              ~ "Rest_of_London",
-    TRUE                                                  ~ NA_character_
+    TRUE                                                   ~ NA_character_
   )
 }
 
-#' Pooled view across all three groups. Each row keeps its own group's
-#' threshold (looked up by subgroup + phase) so compliance is evaluated
-#' against the correct standard even though groups are combined.
 process_all_groups <- function(audits, groups) {
   g <- setNames(groups, sapply(groups, `[[`, "name"))
 
@@ -187,18 +173,12 @@ process_all_groups <- function(audits, groups) {
   derive_outcomes(audits_grp)
 }
 
-#' Subset a group's data to one year (or keep all years), then build the
-#' tree nodes/edges and summary tables — mirrors the analysis-loop body of
-#' tree_analysis_rol_outcome_focused.R, parameterised by year.
 build_outputs <- function(audits_grp_full, year_filter, group_name) {
   audits_grp <- if (identical(year_filter, "All Years")) {
     audits_grp_full
   } else {
     filter(audits_grp_full, year == as.integer(year_filter))
   }
-  # "No NRMM" rows are always dropped upstream already (blank Engine Type
-  # never survives process_group()'s Engine Type filter), but excluded here
-  # too so N_all unambiguously means "in-scope NRMM" with no separate node.
   audits_grp <- filter(audits_grp, `Machine Type` != "No NRMM")
 
   N_all <- nrow(audits_grp)
@@ -206,50 +186,16 @@ build_outputs <- function(audits_grp_full, year_filter, group_name) {
   lbl   <- function(title, n) paste0(title, "\n", n, " | ", p(n))
   root_label <- paste0(gsub("_", " ", group_name), " - ", year_filter)
 
-  audits_clean <- audits_grp %>%
-    filter(!missing_initial_stage)
-
-  improved_records <- filter(audits_clean, emissions_improved)
-  upgraded_records <- filter(audits_clean, emissions_improved_by_upgrade)
-  removed_records  <- filter(audits_clean, emissions_improved_by_removal)
-
-  upgrade_tbl_compliance <- if (nrow(upgraded_records) > 0) {
-    as.data.frame(round(100 * table(upgraded_records$`Final Machinery Compliance`) / N_all, 1))
-  } else NULL
-  upgrade_tbl_reasons <- if (nrow(upgraded_records) > 0) {
-    as.data.frame(round(100 * table(upgraded_records$`Final Site Reasons`) / N_all, 1))
-  } else NULL
-  removal_tbl_compliance <- if (nrow(removed_records) > 0) {
-    as.data.frame(round(100 * table(removed_records$`Final Machinery Compliance`) / N_all, 1))
-  } else NULL
-  removal_tbl_reasons <- if (nrow(removed_records) > 0) {
-    as.data.frame(round(100 * table(removed_records$`Final Site Reasons`) / N_all, 1))
-  } else NULL
-
-  cold_breakdown <- if (nrow(improved_records) > 0) {
-    audits_clean %>%
-      group_by(`Cold-Engaged`) %>%
-      summarise(
-        pct_of_sample = round(100 * n() / N_all, 1),
-        pct_improved  = round(100 * sum(emissions_improved, na.rm = TRUE) / N_all, 1)
-      )
-  } else NULL
-
-  # ===== ITEM 7 TREE =====
+  audits_clean <- audits_grp %>% filter(!missing_initial_stage)
 
   n_stage_unresolvable <- sum(audits_grp$missing_initial_stage, na.rm = TRUE)
 
-  # Check final outcomes for Stage Unresolvable audits: even though the
-  # initial stage couldn't be read, the final audit may still resolve a
-  # stage. Split by whether Final Emissions Stage resolves, and if so,
-  # whether it clears that row's threshold. Mutually exclusive and
-  # exhaustive, so the three always sum to n_stage_unresolvable.
-  stage_unresolved_records  <- filter(audits_grp, missing_initial_stage)
-  n_unresolved_final_ok     <- sum(!is.na(stage_unresolved_records$final_stage) &
-                                      stage_unresolved_records$final_emissions_compliant,  na.rm = TRUE)
-  n_unresolved_final_notok  <- sum(!is.na(stage_unresolved_records$final_stage) &
-                                      !stage_unresolved_records$final_emissions_compliant, na.rm = TRUE)
-  n_unresolved_still        <- sum(is.na(stage_unresolved_records$final_stage), na.rm = TRUE)
+  stage_unresolved_records <- filter(audits_grp, missing_initial_stage)
+  n_unresolved_final_ok    <- sum(!is.na(stage_unresolved_records$final_stage) &
+                                     stage_unresolved_records$final_emissions_compliant,  na.rm = TRUE)
+  n_unresolved_final_notok <- sum(!is.na(stage_unresolved_records$final_stage) &
+                                     !stage_unresolved_records$final_emissions_compliant, na.rm = TRUE)
+  n_unresolved_still       <- sum(is.na(stage_unresolved_records$final_stage), na.rm = TRUE)
 
   n_init_compliant <- sum(audits_clean$initial_emissions_compliant == TRUE,  na.rm = TRUE)
   n_init_noncomp   <- sum(audits_clean$initial_emissions_compliant == FALSE, na.rm = TRUE)
@@ -265,10 +211,6 @@ build_outputs <- function(audits_grp_full, year_filter, group_name) {
   n_warm_improved <- sum(warm_nc$emissions_improved, na.rm = TRUE)
   n_warm_not      <- n_warm_nc - n_warm_improved
 
-  # Disaggregate Driven Compliant by enforcement outcome (schema Item 7 Row 4:
-  # "Removed/replaced"). Classified from the raw Final Machinery Compliance
-  # text, not the emissions_improved_by_* flags, so the two are mutually
-  # exclusive and always sum to n_cold_improved / n_warm_improved.
   is_removed <- function(df) grepl("Removed", df$`Final Machinery Compliance`, ignore.case = TRUE)
 
   cold_improved_records <- filter(cold_nc, emissions_improved)
@@ -278,14 +220,6 @@ build_outputs <- function(audits_grp_full, year_filter, group_name) {
   warm_improved_records <- filter(warm_nc, emissions_improved)
   n_warm_removed  <- sum(is_removed(warm_improved_records), na.rm = TRUE)
   n_warm_upgraded <- n_warm_improved - n_warm_removed
-
-  # Disaggregate Not Actioned by Final Site Reasons (schema Item 4 codes,
-  # e.g. CER = Cannot Evidence Compliance + Emissions Standard Not Met +
-  # Registration Problem). Number of distinct codes present varies by
-  # group/year, so these nodes are appended dynamically below.
-  # DISABLED — see commented-out block below build_outputs()'s edges.
-  # cold_reasons <- count(filter(cold_nc, !emissions_improved), `Final Site Reasons`, name = "n")
-  # warm_reasons <- count(filter(warm_nc, !emissions_improved), `Final Site Reasons`, name = "n")
 
   nodes <- data.frame(
     id = 1:17,
@@ -322,136 +256,122 @@ build_outputs <- function(audits_grp_full, year_filter, group_name) {
     to   = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
   )
 
-  # next_id <- 18L
-  # build_reason_nodes <- function(reason_tbl, parent_id) {
-  #   if (nrow(reason_tbl) == 0) return(list(nodes = NULL, edges = NULL))
-  #   ids <- seq.int(next_id, next_id + nrow(reason_tbl) - 1L)
-  #   next_id <<- next_id + nrow(reason_tbl)
-  #   list(
-  #     nodes = data.frame(
-  #       id    = ids,
-  #       label = lbl(paste0("Reason: ", reason_tbl$`Final Site Reasons`), "–", reason_tbl$n),
-  #       fill  = "#B71C1C",
-  #       stringsAsFactors = FALSE
-  #     ),
-  #     edges = data.frame(from = parent_id, to = ids)
-  #   )
-  # }
-  #
-  # cold_reason_out <- build_reason_nodes(cold_reasons, 8)
-  # warm_reason_out <- build_reason_nodes(warm_reasons, 10)
-  #
-  # nodes <- bind_rows(nodes, cold_reason_out$nodes, warm_reason_out$nodes)
-  # edges <- bind_rows(edges, cold_reason_out$edges, warm_reason_out$edges)
-
-  list(
-    N_all = N_all,
-    n_improved = sum(audits_clean$emissions_improved, na.rm = TRUE),
-    nodes = nodes,
-    edges = edges,
-    cold_breakdown = cold_breakdown,
-    upgrade_tbl_compliance = upgrade_tbl_compliance,
-    upgrade_tbl_reasons = upgrade_tbl_reasons,
-    removal_tbl_compliance = removal_tbl_compliance,
-    removal_tbl_reasons = removal_tbl_reasons
-  )
+  list(N_all = N_all, n_improved = sum(audits_clean$emissions_improved, na.rm = TRUE),
+       nodes = nodes, edges = edges)
 }
 
-# Compute once per group at startup.
+# ===== COMPUTE RESULTS =====
+
+cat("Processing groups...\n")
 results <- setNames(
   lapply(GROUPS, process_group, audits = audits),
   sapply(GROUPS, function(g) g$name)
 )
 results[["All_Groups"]] <- process_all_groups(audits, GROUPS)
 
-# ===== UI =====
+# ===== PRECOMPUTE ALL GROUP x YEAR COMBINATIONS =====
 
-APP_LOADED_AT <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+# htmlwidgets:::toJSON2 defaults to dataframe="columns", so data.frames nested
+# inside onRender's data= argument serialize as {id:[1,2,3]} not [{id:1},...].
+# Converting to list-of-row-lists strips the data.frame class, producing the
+# row-array-of-objects format vis.js expects.
+df_to_rowlist <- function(df) lapply(seq_len(nrow(df)), function(i) as.list(df[i, , drop = FALSE]))
 
-ui <- fluidPage(
-  tags$head(
-    tags$style(HTML("
-      html, body { height: 100%; margin: 0; }
-      .container-fluid { height: 100vh; display: flex; flex-direction: column; padding-bottom: 0; }
-      .container-fluid > h2:first-child {
-        flex: 0 0 auto; margin: 6px 0; font-size: 18px; white-space: nowrap;
-      }
-      .container-fluid > .row { flex: 1 1 auto; min-height: 0; display: flex; }
-      .container-fluid > .row > div[class*='col-'] { height: 100%; }
-      #tree { height: 100% !important; border: 1px solid #ccc; }
-    "))
-  ),
-  titlePanel(
-    tags$div(
-      style = "display: flex; align-items: baseline; gap: 12px;",
-      tags$span("Emissions Compliance - initial state vs final outcome"),
-      tags$small(style = "color: grey;", paste("Instance loaded:", APP_LOADED_AT))
-    )
-  ),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("group", "Group:", choices = names(results)),
-      selectInput("year", "Year:", choices = c("All Years")),
-      verbatimTextOutput("summary_text")
-    ),
-    mainPanel(
-      visNetworkOutput("tree", height = "100%")
-    )
+cat("Precomputing combinations...\n")
+combos <- setNames(lapply(names(results), function(g) {
+  years <- c("All Years", as.character(sort(unique(results[[g]]$year))))
+  setNames(lapply(years, function(yk) {
+    o <- build_outputs(results[[g]], yk, g)
+    list(nodes = df_to_rowlist(o$nodes), edges = df_to_rowlist(o$edges),
+         N_all = o$N_all, n_improved = o$n_improved)
+  }), years)
+}), names(results))
+
+# ===== BUILD WIDGET =====
+
+default_group <- names(results)[1]
+default_year  <- "All Years"
+
+o0 <- build_outputs(results[[default_group]], default_year, default_group)
+vis_nodes0 <- o0$nodes %>%
+  mutate(
+    color           = fill,
+    font            = list(list(color = "white", size = 18)),
+    shape           = "box",
+    widthConstraint = list(list(maximum = 160))
   )
+
+graph <- visNetwork(vis_nodes0, o0$edges, height = "800px") %>%
+  visEdges(arrows = "to") %>%
+  visHierarchicalLayout(
+    direction       = "UD",
+    sortMethod      = "directed",
+    nodeSpacing     = 250,
+    levelSeparation = 180,
+    shakeTowards    = "roots"
+  ) %>%
+  visPhysics(
+    solver                = "hierarchicalRepulsion",
+    hierarchicalRepulsion = list(nodeDistance = 100, avoidOverlap = 1)
+  ) %>%
+  visExport(type = "pdf", name = "item7_tree", label = "Export as PDF")
+
+# ===== ATTACH INTERACTIVE CONTROLS VIA onRender =====
+
+js_code <- "function(el, x, data) {
+  var groups = Object.keys(data);
+
+  var bar = document.createElement('div');
+  bar.style.cssText = 'padding:6px 10px;font:14px Arial,sans-serif;border-bottom:1px solid #ccc;';
+  bar.innerHTML =
+    'Group: <select id=\"grpSel\">' +
+      groups.map(function(g){ return '<option value=\"'+g+'\">'+g+'</option>'; }).join('') +
+    '</select>' +
+    ' &nbsp; Year: <select id=\"yrSel\"></select>' +
+    ' &nbsp; <span id=\"summary\" style=\"color:#555;\"></span>';
+  el.parentNode.insertBefore(bar, el);
+
+  var network = document.getElementById('graph' + el.id).chart;
+  var grpSel = document.getElementById('grpSel');
+  var yrSel  = document.getElementById('yrSel');
+
+  function redraw() {
+    var combo = data[grpSel.value][yrSel.value];
+    network.setData({
+      nodes: new vis.DataSet(combo.nodes.map(function(n) {
+        return { id: n.id, label: n.label, color: n.fill,
+                 font: { color: 'white', size: 18 },
+                 shape: 'box', widthConstraint: { maximum: 160 } };
+      })),
+      edges: new vis.DataSet(combo.edges)
+    });
+    var pct = combo.N_all > 0 ? (100 * combo.n_improved / combo.N_all).toFixed(1) : '0.0';
+    document.getElementById('summary').textContent =
+      'N = ' + combo.N_all + '   Improved = ' + combo.n_improved + ' (' + pct + '%%)';
+  }
+
+  grpSel.onchange = function() {
+    var years = Object.keys(data[grpSel.value]).sort(function(a, b) {
+      return a === 'All Years' ? -1 : (b === 'All Years' ? 1 : parseInt(a) - parseInt(b));
+    });
+    yrSel.innerHTML = years.map(function(y){ return '<option>' + y + '</option>'; }).join('');
+    redraw();
+  };
+  yrSel.onchange = redraw;
+
+  grpSel.value = '%s';
+  grpSel.onchange();
+}"
+
+graph <- htmlwidgets::onRender(graph, sprintf(js_code, default_group), data = combos)
+
+# ===== SAVE =====
+
+output_file <- "tree_dashboard_v2.html"
+htmlwidgets::saveWidget(
+  graph,
+  output_file,
+  selfcontained = TRUE,
+  title = "Emissions Compliance - initial state vs final outcome"
 )
-
-# ===== SERVER =====
-
-server <- function(input, output, session) {
-
-  observeEvent(input$group, {
-    yrs <- sort(unique(results[[input$group]]$year))
-    updateSelectInput(session, "year", choices = c("All Years", yrs), selected = "All Years")
-  })
-
-  outputs <- reactive({
-    build_outputs(results[[input$group]], input$year, input$group)
-  })
-
-  output$summary_text <- renderText({
-    o <- outputs()
-    paste0(
-      "N = ", o$N_all, "\n",
-      "Improved = ", o$n_improved,
-      " (", round(100 * o$n_improved / o$N_all, 1), "%)"
-    )
-  })
-
-  output$tree <- renderVisNetwork({
-    o <- outputs()
-    vis_nodes <- o$nodes %>%
-      mutate(
-        color = fill,
-        font = list(list(color = "white", size = 18)),
-        shape = "box",
-        widthConstraint = list(list(maximum = 160))
-      )
-    visNetwork(vis_nodes, o$edges) %>%
-      visEdges(arrows = "to") %>%
-      visHierarchicalLayout(
-        direction     = "UD",
-        sortMethod    = "directed",
-        nodeSpacing   = 250,
-        levelSeparation = 180,
-        shakeTowards  = "roots"
-      ) %>%
-      # nodeSpacing/levelSeparation above only set the initial layout; once
-      # physics stabilises, actual rest spacing is governed by
-      # hierarchicalRepulsion below. avoidOverlap = 1 accounts for each
-      # node's real rendered box size (not just its center point), which is
-      # what prevents wrapped-text boxes from overlapping.
-      visPhysics(
-        solver = "hierarchicalRepulsion",
-        hierarchicalRepulsion = list(nodeDistance = 100, avoidOverlap = 1)
-      ) %>%
-      visExport(type = "pdf", name = "item7_tree", label = "Export as PDF")
-  })
-
-}
-
-shinyApp(ui, server)
+cat("Saved:", normalizePath(output_file), "\n")

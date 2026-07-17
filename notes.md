@@ -1,6 +1,74 @@
-## 260618 Tree analysis — Item 7 compliance fixes applied
+## 260619 Closer breakdowns of the different pathways
 
-Script `tree_analysis_rol_outcome_focused.R` updated to comply with schema.md Item 7 (Rules for compliance outcomes). Added: (1) separation of upgrade vs. removal pathways; (2) explicit "No NRMM" filtering; (3) enforcement field inspection (Final Site Compliance, Final Machinery Compliance, Final Site Reasons) to validate Item 7 Row 4 pathway; (4) breakdown of cold-engaged vs. warm-engaged effectiveness per officer claim. See TREE_ANALYSIS_FIXES.md for full details. Script ready to run.
+- Issue found: `engine type` was not set before 2019, affecting 147 of 1,525 Generator rows (9.6%). So if these are excluded due to `engine type` being unset, we miss 10% of the generators. This is important for the constant speed zone analsyes.
+
+- Possible solutions for pre-2019 generators `machine type` :
+
+  - assign `engine type` based on `zone` where it is set? No, zone for them is not set pre-2019;
+
+  - assign `engine type` based on compliance? No, only 27 can unambiguously be assigned based on compliance
+
+  - **Pre-2019 generator Engine Type inference test** whether Stage + Compliance + Zone can infer Constant vs Variable (Constant Speed group threshold = IIIA at era 1; CAZ+ = IIIB; Rest of London = IIIA — same as Constant Speed).
+
+    | Stage | Compliance | Zone | Count | Inference |
+    |----------|----------|----------|----------|--------------------------------|
+    | IIIA | Compliant | CAZ | 27 | **Constant Speed** (unambiguous — a Variable generator in CAZ+ needed IIIB to pass; IIIA-only pass rules that out) |
+    | IIIA | Compliant | GL | 47 | Ambiguous — Rest of London also has an IIIA threshold at era 1, so this is consistent with either Constant Speed or genuine Variable/RoL |
+    | IIIA | Non-compliant | any | 7 | Unresolved |
+    | II | Non-compliant | any | 23 | Unresolved (below universal IIIA floor in every zone/group) |
+    | II | Removed from site | any | 2 | Unresolved |
+    | Unidentified | Non-compliant | any | 38 | Unresolved (no stage data) |
+    | Unidentified | Removed from site | any | 3 | Unresolved |
+    | **Total** |  |  | **147** | **27 resolved (18.4%), 120 unresolved (81.6%)** |
+
+    Stage IIIB contributed nothing — zero pre-2019 unset-Engine-Type generators were ever recorded at IIIB. Conclusion: stage/compliance/zone inference only cleanly resolves the CAZ-zoned IIIA-compliant subset (27 records); the bulk (120) cannot be disambiguated this way.
+
+- ** Conclusion on definitions of `engine type` and `machine type` **
+
+  - Since engine type was unset pre-2019, we must exclude pre-2019 generators from the analysis.
+
+  - Therefore `Machine groups` need to be defined by the following rules:
+
+    - if `machine type` == `generator` and `date` < 2019, then `Machine Group` <- "p19" and exclude from analysis; 
+    - else if `zone` = BCP (Beyond Construction Project), then `Machine Group` <- "BCP" (not used in this analysis); 
+    - else if audit date after 31.12.2024, then `Machine Group` <- "P24" (post 2024);
+    - else if engine type is Constant Speed then `Machine Group` <- "Constant Speed", (is used in this analysis;
+    - else if `zone` == `CAZ` or `OA`  `Machine Group` <- "CAZ+";
+    - else Assign "GL" for Rest of London or Greater London. Propose optioms to (1) test if there are enough generators in the pre-2019 audits to justify further work, or can we just exclude them? (2) if we need them, infer engine type if a generator was audited pre 2019 for example based on compliance at Euro engine stage IIIa.
+
+  - Stats
+
+    - 147 of 1,525 Generator rows (9.6%) have unset Engine Type, all pre-2019. Among Generators with a valid Engine Type: Stage IIIA splits 80% Constant / 20% Variable (648/165); Stage II splits 84%/16% (68/13); Stage V is 100% Variable (171/171, zero Constant). Of the 147 unset rows: 81 are Stage IIIA, 25 are Stage II, 41 have no stage at all ("Unidentified") — none are Stage V.
+
+- 
+
+## 260618 Tree analysis using the tree_analysis_rol_outcome_focused.R
+
+Auditing the previous work all over again so we can restart the analyis.
+
+- Script `tree_analysis_rol_outcome_focused.R`\` drafted to focus on what audit flags are linked to actual emissions reductions. This is actually an experiment to see if these are actual emissions reduction.
+
+- **To check before proceeding**
+
+  - [ ] Data still needs cleansing as engine_type is not properly populated for pre 2019 data. Test which features have the data for those rows. This was resolved in Iteration 9 of the data ingestion stage.
+
+  - [ ] What flag combinations in the audits are linked to actual emissions reductions
+
+  - [ ] Can the emissions reductions from enforcement (eg cold-engaged or not-self-compliant) vs self-compliant be distinguished.
+
+  - [ ] What EXACT flags indicate self-compliant, never compliant, warm engaged but not self compliant AND led to an emissions reduction, warm engaged but not self compliant that did not lead to an emissions reduction. IS the Item 8 in the Schema the complete description?
+
+  - [ ] What are the correct transition matrices to be used for each data subset, considering the actual propulations (e.g. cases where some numbers are such a small proportion compared to the others that they can be left out of the transition matrix). Are there enough data to calculated the transition matrix values with high certainty. What rules are required for each subset?
+
+  - [ ] What is the best temporal breakdown of each subgroup of the data in each phase of the LEZ?
+
+- **Actions taken today**
+
+  1.  Dashboard code: Built `tree_dashboard.R` — Shiny + visNetwork interactive companion to `tree_analysis_rol_outcome_focused.R`. Group/year selectors drive a reactive Item 7 compliance tree and enforcement pathway tables. Fixed two bugs: visNetwork font spec (needed double `list()`), and `as.Date()` missing `format=` (misread DD/MM/YYYY, year showed as 1–31). Pushed to branch `add-item7-compliance-dashboard`.
+
+  2.  Data cleanse steps available: v9 ingestion script (`260521_step1_ingestion_v9.R`) already implements modal engine_type imputation per machine_type, excluding Generators (near 50/50 split, no reliable mode). Porting this into the dashboard would recover \~1,150 of the 1,404 pre-2019 blank-Engine-Type records.
+
+  3.  Other findings: Pre-2019 records (2016–2018) vanish from the dashboard's year dropdown because blank Engine Type fails the Constant/Variable filter *before* date derivation runs — not a date bug. 1,399 of 1,404 pre-2019 rows have blank Engine Type; only 5 don't.
 
 ## 2026-06-16 — Audit and exploratory tree analysis
 
@@ -87,7 +155,7 @@ Applied per Stage in emissions estimation (Step 5). Store as named vector `EF_s`
 ## Key analytical notes from previous trials
 
 | \# | Decision | Rationale |
-|------------------|---------------------------|---------------------------|
+|-------------------|---------------------------|---------------------------|
 | 1 | Constant_Speed max_stage set to 3, not 6 | IIIB/IV absent from cold fleet; uniform max_stage=6 dilutes signal into impossible states |
 | 2 | Phase B CAZ+ uses 3-segment temporal split, not annual GLS | Annual sample sizes 37-83; annual GLS yields inflated lambda=0.638; temporal estimate 0.363 |
 | 3 | 2024 CS cold data excluded from lambda_CF estimation | Stage V spike 0% to 61% is anticipatory regulatory compliance, not natural turnover; use as Phase C initialisation state only |

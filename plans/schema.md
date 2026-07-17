@@ -8,13 +8,20 @@ version 3 \| May 5 2026
 
 1-7: I=1, II=2, IIIA=3, IIIB=4, IV=5, V=6, {ZE\|hybrid\|any other} = 7
 
-### 3. Emissions rating minimum requirements by policy era and machine group (used in e-bar calculation)
+### 3. Machine Groups; Minimum emissions rating limit by policy era and machine group (used in e-bar calculation)
+
+#### **3a. Machine Group assignment**
+
+**Machine Groups** are defined by: if Zone = Beyond Construction Project, then assigned Machine Group "BCP" (not used in this analysis); otherwise, check if audit date after 31.12.2024, then assign Machine Group "P24" (post 2024); otherwise if engine type is Constant Speed then assigned Machine Group "Constant Speed", which is used in this analysis; if not then assigned "CAZ+" if in Zone CAZ (Central Activity Zone) or OA (Opportunity Areas); if not then Assigned "GL" for Rest of London or Greater London.
+
+#### **3b. Applicable emissions rating limits by Machine Group and Policy Area**
 
 | **Policy era ending (columns)**<br />*Machine Groups (rows)* | **1.9.2015**[^1] | **2: 1.9.2020 (+6M)**[^2] | **3: 1.1.2025** | **4: 1.1.2030** | **5: 1.1.2040** |
 |------------|------------|------------|------------|------------|------------|
 | *Constant speed* | IIIA | V | V | V | ZE |
-| *CAZ+* | IIIB | IV | V | V | ZE |
+| *CAZ+ (= CAZ + OA)* | IIIB | IV | V | V | ZE |
 | *Rest of London* | IIIA | IIIB | IV | V | ZE |
+|  |  |  |  |  |  |
 
 [^1]: Policy phase 1 spans 1.9.2015 onwards. 2015 excluded due to lack of audit data.
 
