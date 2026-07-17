@@ -42,3 +42,41 @@ Claude reads the step output tables and all console output before writing. Struc
 patterns, anomalies — followed by relevant tables and plot images
 embedded inline, each with exactly two lines of plain-English explanatory text>
 ```
+## Verification criteria for analysis scripts (moved from notes.md, 260717)
+
+Three categories: structural (halt on failure), analytical (domain sanity, warn), output (artefact usability, warn). Two checks from the original list were deleted in the move as inconsistent with audited findings: "COVID-period records absent from Phase B" (exclusion is an open decision, notes.md) and "Final Emissions Stage >= Initial Emissions Stage within an audit" (stage fields are static within audits, so the check tests nothing).
+
+**Structural checks** (include in every ingestion script; halt on failure)
+
+- Row count after filtering matches expectation: in-scope records substantially fewer than 16,251 (P24 and BCP excluded, `No NRMM` excluded). Flag if >16,000 survive filtering.
+- No duplicate TANs within a single audit date.
+- Zone values contain only {"CAZ", "OA", "GL"} after filtering.
+- Date range falls within 2016-2030.
+- Compliance determinations boolean with no NAs where a determination was possible.
+- Total in-scope record count saved at ingestion and compared at the start of every subsequent script; any deviation halts with an explicit error.
+- Phase record counts summed across A1, A2, B, C equal the total in-scope count.
+- Transition matrices right-stochastic: rows sum to 1; enforce after every matrix operation.
+
+**Analytical checks** (warn to console, continue)
+
+- Compliance rate rises after 1.9.2020 and after 1.1.2025.
+- Constant speed group shows no IIIB records (policy skips IIIB; any present signals a coding error).
+- Mean encoded stage increases across phases A1 -> A2 -> B.
+- CAZ+ shows higher compliance than Rest of London within the same phase (tighter threshold); the reverse is a red flag.
+- Emissions stage frequency table and zone x equipment group cross-tabulation saved as reference fingerprints at ingestion; later scripts recompute on retained records and flag unexpected shifts.
+
+**Output checks** (warn to console, continue)
+
+- Each saved `.rds` loads in a fresh session and matches the dimensions printed on completion.
+- Time series plots span the correct phase range with vertical lines at phase boundaries (1.9.2020, 1.1.2025).
+- Compliance-rate plots bounded 0-1; values outside indicate a wrong denominator.
+- Summary tables contain no all-NA columns and no infinite values.
+- No plot saved with fewer than 30 data points in any displayed group; sparse groups flagged, not silently plotted.
+- Manifest entry appended (not overwritten); row count in `manifest.md` increments after each step.
+
+## Analysis coding conventions (moved from notes.md, 260717)
+
+- All WLS fits via lm() with weights argument; extract SE from vcov()
+- Transition matrices must be right-stochastic: rows sum to 1; enforce after every matrix operation
+- Use exact fractional years for all temporal midpoints (see schema.md for phase boundaries)
+- Never hardcode column names; derive from schema constants defined at script top
