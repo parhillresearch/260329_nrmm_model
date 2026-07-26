@@ -2,14 +2,14 @@
 
 ## State of play (17 July 2026)
 
-Current model: `nrmm_model_v3.R` (v1 architecture plus dashboard payloads, hours/day usage table, stage populations and projected stage vectors), saved as `intermediate_data/nrmm_model_v3.rds`, results in `outputs/nrmm_model_v3.md`; current dashboard: `nrmm_dashboard_v3.html` (outcomes tree/table, EF with hours/day sliders, stage populations, trends & projections). Full documentation in the next section. It supersedes the pre-audit lambda model (parameters archived below), the phase-stratified estimation design, and the separate derivations in `tree_dashboard_v3-v5.R` and `260717_ef_fleet_v1-v2.R`, which remain as development history.
+Current model: **`nrmm_model_v4.R`** (authoritative), saved as `intermediate_data/nrmm_model_v4.rds`, results in `outputs/nrmm_model_v4.md`; current dashboard: **`nrmm_dashboard_v4.html`** (built by `nrmm_dashboard_v4.R`, reads the model object only). All earlier scripts carry a SUPERSEDED banner and must not be cited; several use earlier definitions that give different numbers. Report: `260719_nrmm_report.md`, whose section 12 maps every quoted figure to the model object that produces it. Full methodology in the next section. It supersedes the pre-audit lambda model (parameters archived below), the phase-stratified estimation design, and the separate derivations in `tree_dashboard_v3-v5.R` and `260717_ef_fleet_v1-v2.R`, which remain as development history.
 
 Headline findings the model settles:
 
-1. **The policy's measurable effect is the arrival-composition (proactive) channel.** Era-2 replacement probabilities are statistically indistinguishable between arms ($z = 0.09$); warm fleets arrive cleaner (c-bar gap +8.5 pp, arrival NOx ~16% lower per machine) rather than upgrading faster once on site.
+1. **The policy's measurable effect is the arrival-composition (proactive) channel.** Era-2 replacement probabilities are statistically indistinguishable between arms ($z = 0.09$); warm fleets arrive cleaner (compliance gap +8.5 pp; arrival NOx 14.1% lower per machine, excluding dispensation holders) rather than upgrading faster once on site.
 2. **Replacement roughly doubled after September 2020** in both arms: variable-speed $\hat{\bar p}$ 0.10-0.12 (era 1) to ~0.23 (era 2).
 3. **Constant-speed machines are not upgrading** ($\hat{\bar p} \approx 0$, se 0.004); projected compliance against a Stage V threshold stays near zero through 2030 under the central scenario.
-4. **Within-audit enforcement outcomes are small and mostly removals**: 108 confirmed reductions (0.9% of audits), 95% of resolved outcomes are removals, and at least 43% of removed machines with usable TANs reappear at other sites.
+4. **Within-audit enforcement outcomes are small and mostly removals**: 108 confirmed reductions (0.9% of audits), 95% of resolved outcomes are removals, and 55.9% of traceable removal events (40.3% of distinct machines) reappear at other sites.
 
 Fitted $\hat{\bar p}$ (annual replacement probability, per engine type x arm x era):
 
@@ -19,9 +19,9 @@ Fitted $\hat{\bar p}$ (annual replacement probability, per engine type x arm x e
 | Variable, era 2 (Sep 2020 - Dec 2024) | 0.227 (se 0.024) | 0.232 (se 0.040) | 0.231 (se 0.032) |
 | Constant, era 2 | -0.003 (se 0.027) | 0.001 (se 0.002) | -0.002 (se 0.004) |
 
-## 260717 Unified model documentation: nrmm_model_v1.R
+## Unified model documentation (current implementation: nrmm_model_v4.R)
 
-One classified data spine, three layers, one saved object (`intermediate_data/nrmm_model_v1.rds`; results tables in `outputs/nrmm_model_v1.md`). Supersedes the separate derivations in tree_dashboard_v3-v5 and 260717_ef_fleet_v1-v2, which remain as development history.
+One classified data spine, three layers, one saved object (`intermediate_data/nrmm_model_v4.rds`; results tables in `outputs/nrmm_model_v4.md`). The derivation below is unchanged since it was written for v1 on 17 July 2026; v2-v4 added payloads and quantities without altering the estimator. Supersedes the separate derivations in tree_dashboard_v3-v5 and 260717_ef_fleet_v1-v2, which remain as development history.
 
 ### 1. Notation and parameters
 
@@ -39,7 +39,7 @@ One classified data spine, three layers, one saved object (`intermediate_data/nr
 | $\bar c$ | compliance rate | share of status-resolvable machines compliant at arrival: $\bar c = (n_A + n_B)/(n_A + n_B + n_C)$, statuses A stage-compliant, B dispensation held, C emissions non-compliant |
 | $EF_\tau$ | type EF | power-weighted mean stage-limit NOx rate (g/kWh) of machine type $\tau$ in a cell |
 | $N_\tau,\ \overline{kW}_\tau$ | type count, mean power | number of machines and mean rated power of type $\tau$ (placeholder $N_\tau$ = audit counts pending registration database) |
-| $u_\tau$ | usage index | relative energy-use intensity of type $\tau$ (load factor $\times$ hours), scaled to excavator $= 1$; placeholder values |
+| $u_\tau$ | usage index | relative energy-use intensity of type $\tau$: hours/day $\times$ load factor, normalised to the excavator (8 h/day $\times$ 0.40); placeholder values, 24 h/day cap |
 | $s_\tau$ | energy share | normalised weight $s_\tau = N_\tau \overline{kW}_\tau u_\tau \big/ \sum_{\tau'} N_{\tau'} \overline{kW}_{\tau'} u_{\tau'}$ |
 | $EF_{\mathrm{fleet}}$ | fleet EF | $EF_{\mathrm{fleet}} = \sum_\tau s_\tau\, EF_\tau$ (g/kWh $=$ kg/MWh) |
 
@@ -146,6 +146,12 @@ All items below are superseded by `nrmm_model_v1.R`; do not use in new work.
 
 ## Decision log
 
+- **260726 - review-readiness pass (model v4, dashboard v4).** Prompted by the question of whether the work could survive a line-by-line review cross-referenced with the report. It could not: three reported quantities had no code path (they came from exploratory scripts since deleted), and four figures were stale or conflicted with the model. Fixed by computing them in the model and correcting the report.
+  - **New model objects.** `arrival_ef` (mean arrival emissions intensity per Machine Group x phase x arm, with and without pre-existing dispensations) - this is the report's headline finding and previously existed only in a scratchpad; `removal_fate` (displacement under both the record-level and machine-level definitions, computed side by side because earlier drafts conflated them); `enforcement_nox` (the enforcement channel as a share of audited-fleet NOx, previously surviving only in the superseded tree_dashboard scripts).
+  - **Figures corrected in the report**, with causes documented in its technical boxes: arrival gap 16% -> 14.1%, phase gaps "12-26%" -> 10.9-17.2% (earlier values used a stage-only EF vector ignoring engine power band; band-resolved limits compress the gap because EU standards are laxer for small engines, where Stages IIIA-V share a NOx limit); displacement 43% -> 55.9% per removal event or 40.3% per machine, both now stated; unknowable removals ~390 -> 365; NOx shares 0.2/2.6/7.4% -> 0.10/1.86/5.59%.
+  - **Retrofits now credited zero NOx** in `enforcement_nox`. The retrofits in this data are overwhelmingly DPFs, which abate PM, not NOx; crediting them as a stage change was the largest single overstatement available in the dataset.
+  - **`REPLACEMENT_STAGE_ASSUMED` promoted to a named constant** in the model; it had been used implicitly via the EF scripts and was undefined in the model until now.
+  - **Provenance hygiene.** All 13 superseded scripts carry a SUPERSEDED banner naming their successor; stale header comments fixed in the current scripts (dashboard v3 claimed to read `nrmm_model_v2.R`; model header still described relative usage indices after the hours/day change); the dashboard's client-side recursion, self-check and aggregation now carry explanatory comments; the report gained a cross-reference table (section 12).
 - **260719 — plain-English dashboard pass.** `nrmm_dashboard_v3.R`: all arcane labels replaced with clear statements (the pooled-arm badge now reads "too few unregistered constant-speed machines to measure separately, so both groups share one replacement-rate estimate"; p-bar/c-bar/EF_t/parity/arm codes similarly reworded), hover tooltips added to every category header, arm row, gap row and badge, and a Glossary view added covering all sixteen terms. Technical terms remain in the model scripts and notes; the dashboard now speaks English.
 - **260719 — hours/day usage unit and stage-population views.** Usage is now hours/day x fixed load factor per type, normalised to the excavator (8 h/day x 0.40), replacing the abstract index; the 24 h/day physical cap tightens the Generator and Pump upper bounds (u_high 5.0 to 3.75), narrowing the All-fleet phase B EF envelope from [1.99, 3.08] to [2.00, 2.97] with the central 2.52 unchanged. `nrmm_model_v3.R` also emits observed stage populations per subgroup x arm x year and the full projected stage vectors pi_1..pi_7 per scenario year (shares only; absolute populations need the registration multiplier). `nrmm_dashboard_v2.R` adds the Stage populations view (stacked shares, observed solid / projected faded, p-bar slider) and re-expresses the EF sliders in hours/day.
 - **260717 — unified dashboard.** `nrmm_dashboard_v1.R` consumes `nrmm_model_v2.rds` only (no re-derivation): outcomes tree/table, EF view with usage sliders (Generator, Excavator, grouped others; envelope always shown), trends & projections with a p-bar multiplier slider running the constrained recursion in JS, parity-asserted against the R projections on load. `nrmm_model_v2.R` adds the payloads (year-keyed outcome cells, All_NRMM strata + envelopes, threshold schedule as data, schema_version = 2). Note: the removal fate split now computes reappearance strictly after each record's own date, correcting the v3-v5 any-removal-event logic (fleet-wide d/e split 167/132 vs 191/108; totals unchanged).
@@ -155,7 +161,7 @@ All items below are superseded by `nrmm_model_v1.R`; do not use in new work.
 - **260717 — Markov feasibility.** Free phase-specific matrices rejected: TAN panel transitions are noise-dominated (median re-sighting gap 15 days; stage changes symmetric 43 up / 43 down, a recording-noise signature), and 7 of 18 subgroup x phase x arm cells have n < 100. Constrained one-parameter chain adopted; the ~1% symmetric flip rate simultaneously validates cross-sectional distributions.
 - **260717 — EF weighting (option 2).** Type-stratified convex combination adopted; full derivation and sensitivity in `outputs/260717_ef_fleet_v2.md`. Phase B type-mean EFs span 0.98 (piling rig) to 4.60 (MEWP) g/kWh, so mix is first-order; normalised weights make absolute hours cancel.
 - **260717 — EF units.** Per-MWh (g/kWh) confirmed as native unit of stage limits; weighting, not units, is the substantive choice; see `outputs/260717_ef_fleet_v1.md`.
-- **260717 — audit corrections.** Within-audit "improved" is ~5% of audits and 95% removals; strict emissions-attributable count 600 (of which 108 confirmed reductions); ≥43% of removed TANs reappear elsewhere; admin-only non-compliance (640 records) quarantined from emissions outcomes.
+- **260717 — audit corrections.** Within-audit "improved" is ~5% of audits and 95% removals; strict emissions-attributable count 600 (of which 108 confirmed reductions); ≥43% of removed TANs reappear elsewhere *(superseded 260726: 55.9% of removal events / 40.3% of machines, see that entry)*; admin-only non-compliance (640 records) quarantined from emissions outcomes.
 
 ### Key analytical decisions from previous trials (with current status)
 

@@ -1,15 +1,28 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_model_v4.R
-# Retained so earlier results remain reproducible. Some definitions here
-# differ from the current model (notably removal fate, retrofit NOx credit
-# and the usage-index basis), so numbers from this script will not always
-# match the current report. Do not cite it. See notes.md, "State of play".
-# =====================================================================
-
-# nrmm_model_v3 — unified NRMM model: one classified data spine, three layers.
+# nrmm_model_v4 — unified NRMM model: one classified data spine, three layers.
+#
+# THIS IS THE AUTHORITATIVE MODEL SCRIPT. Every figure in
+# 260719_nrmm_report.md traces to an object saved here; see the cross-
+# reference table in that report (section 12) and in notes.md.
+#
+# v4 changes (review-readiness pass): three quantities that the report cited
+# but no committed script computed are now derived here, so every reported
+# number has a code path:
+#   - arrival_ef: mean arrival emissions intensity per Machine Group x phase
+#     x arm, with and without machines holding pre-existing dispensations.
+#     This is the report's headline finding (registered fleets arrive cleaner)
+#     and was previously computed only in an exploratory script.
+#   - removal_fate: the removal-displacement rate under BOTH definitions
+#     (record-level with a record-relative date, which the taxonomy uses and
+#     which is authoritative; and distinct-machine with an any-removal-event
+#     rule, which earlier drafts quoted). They answer different questions and
+#     differ materially, so both are computed and labelled rather than one
+#     being quietly dropped.
+#   - enforcement_nox: the enforcement channel expressed as a share of
+#     audited-fleet NOx, replacing figures that survived only in the
+#     superseded tree_dashboard_v3-v5 scripts.
+#   - schema_version = 4.
 #
 # v3 changes:
 #   - Usage expressed in HOURS/DAY per machine type with a fixed load factor,
@@ -39,7 +52,8 @@
 #            for the tree/table dashboard views.
 #   Layer 2  EF: type-stratified convex-combination fleet EF per Machine Group
 #            x phase, EF_fleet = sum_t s_t EF_t, s_t = N_t kWbar_t u_t
-#            (normalised), with placeholder relative usage indices u_t.
+#            (normalised), where u_t = hours/day x load factor per type,
+#            normalised to the excavator (placeholder values, see USAGE_TABLE).
 #   Layer 3  DYNAMICS: constrained Markov chain on stages 1..7. Per year, a
 #            machine below the market-top stage M(t) is replaced by M(t) with
 #            probability p-bar, else keeps its stage. p-bar estimated per arm x
@@ -62,7 +76,8 @@
 # values pending verification / sourced estimates; N_t are audit counts
 # pending the NRMM registration database.
 #
-# No stochastic code (closed-form WLS; no bootstrap in v1), so no seed.
+# No stochastic code (closed-form WLS; no bootstrap in any version to
+# date), so no set.seed() call is required.
 
 library(readr)
 library(dplyr)
@@ -110,6 +125,11 @@ NOX_LIMIT <- rbind(   # g/kWh by stage x power band; PLACEHOLDER, verify
 )
 colnames(NOX_LIMIT) <- BAND_LABELS
 
+# Stage assumed for a replacement machine when the audit records no final
+# stage: operators buy current-generation equipment (schema, objective 4), so
+# a replacement is credited at the market top rather than an intermediate.
+REPLACEMENT_STAGE_ASSUMED <- 6L
+
 NAMED_TYPES <- c("Excavator", "Generator", "Telehandler", "Dumper",
                  "Piling Rig", "Pump", "Mobile Crane", "Crusher",
                  "Crawler Crane", "Roller", "MEWP", "Compressor")
@@ -154,7 +174,7 @@ YEAR_MIN_N    <- 20      # minimum year-cell n for trend estimation
 PROJ_YEARS    <- 2025:2030
 PROJ_BASE_YEARS <- c(2023, 2024)   # pooled initial distribution
 
-output_md <- "outputs/nrmm_model_v3.md"
+output_md <- "outputs/nrmm_model_v4.md"
 
 # --- Load input data ---
 
@@ -374,6 +394,94 @@ stage_populations <- spine %>%
   filter(!is.na(initial_stage)) %>%
   count(subgroup, arm, year, stage = initial_stage, name = "n")
 
+# --- Layer 1d: removal fate under both definitions (reconciliation) ---
+#
+# "How often does a removed machine reappear elsewhere?" has two defensible
+# answers, and earlier drafts of the report quoted one while the taxonomy used
+# the other. Both are computed here so the difference is explicit.
+#
+#   record_level (AUTHORITATIVE, used by nc_outcome d/e/f): one row per audit
+#     record of an emissions-non-compliant machine removed from site; the
+#     machine counts as displaced if its serial number is seen at any STRICTLY
+#     LATER date. Matches the rest of the taxonomy, which is record-level.
+#   machine_level: one row per distinct serial number that was ever removed;
+#     displaced if seen after its FIRST removal. Answers "what share of
+#     machines get relocated", not "what share of removal events".
+#
+# They differ because machines removed repeatedly contribute several records,
+# and repeat offenders are more likely to be seen again.
+
+removal_records <- spine %>%
+  filter(initial_status == "C", nc_outcome %in% c("d", "e", "f"))
+
+removal_machines <- spine %>%
+  filter(removed_plain, tan_usable) %>%
+  group_by(TAN) %>%
+  summarise(first_removed = min(audit_date), .groups = "drop") %>%
+  left_join(
+    spine %>% filter(tan_usable) %>% select(TAN, audit_date),
+    by = "TAN", relationship = "one-to-many"
+  ) %>%
+  group_by(TAN, first_removed) %>%
+  summarise(seen_after = any(audit_date > first_removed), .groups = "drop")
+
+removal_fate <- tibble(
+  definition = c("record_level (authoritative)", "machine_level"),
+  traceable  = c(sum(removal_records$nc_outcome %in% c("d", "e")),
+                 nrow(removal_machines)),
+  displaced  = c(sum(removal_records$nc_outcome == "d"),
+                 sum(removal_machines$seen_after)),
+  untraceable = c(sum(removal_records$nc_outcome == "f"), NA_integer_)
+) %>%
+  mutate(displaced_pct = round(100 * displaced / traceable, 1))
+
+# --- Layer 1e: enforcement channel in NOx terms ---
+#
+# Shares of audited-fleet NOx, so the enforcement channel can be compared with
+# the arrival channel on one scale. Conventions, each chosen to avoid
+# overstating the result:
+#   - a (replaced on the spot): credited initial EF minus the replacement EF;
+#     where the final stage is blank the replacement is assumed to be at the
+#     market top (schema: operators buy current-generation equipment).
+#   - b (stage upgraded): credited the observed initial-to-final EF difference.
+#   - c (retrofitted): credited ZERO NOx. Retrofit here is overwhelmingly DPF,
+#     which abates particulates, not NOx. Crediting it as a stage change would
+#     be the single largest overstatement available in this data.
+#   - e (removed, never seen again): full initial EF, i.e. treated as gone.
+#   - d, f (reappears elsewhere / untraceable): full initial EF reported
+#     separately as "at stake", NOT as a reduction.
+
+nox_of <- function(records, mode) {
+  records <- filter(records, !is.na(initial_stage), !is.na(ef_nox))
+  if (nrow(records) == 0) return(0)
+  final_ef <- NOX_LIMIT[cbind(
+    as.character(pmin(coalesce(records$final_stage, REPLACEMENT_STAGE_ASSUMED), 7L)),
+    as.character(records$band))]
+  switch(mode,
+    gone    = sum(records$ef_nox),
+    upgrade = sum(pmax(records$ef_nox - final_ef, 0)),
+    zero    = 0)
+}
+
+stage_known <- filter(spine, !is.na(ef_nox))
+total_fleet_nox <- sum(stage_known$ef_nox)
+nc <- filter(spine, initial_status == "C")
+
+enforcement_nox <- tibble(
+  channel = c("confirmed reduction (a+b, retrofit c credited zero)",
+              "probable exit (e)",
+              "removal fate unknown (d+f), at stake"),
+  n = c(sum(nc$nc_outcome %in% c("a", "b", "c")),
+        sum(nc$nc_outcome == "e"),
+        sum(nc$nc_outcome %in% c("d", "f"))),
+  nox_saved = c(
+    nox_of(filter(nc, nc_outcome %in% c("a", "b")), "upgrade") +
+      nox_of(filter(nc, nc_outcome == "c"), "zero"),
+    nox_of(filter(nc, nc_outcome == "e"), "gone"),
+    nox_of(filter(nc, nc_outcome %in% c("d", "f")), "gone"))
+) %>%
+  mutate(pct_of_fleet_nox = round(100 * nox_saved / total_fleet_nox, 2))
+
 # --- Layer 2: EF strata per Machine Group x phase (plus All_NRMM pool) ---
 
 make_strata <- function(records, label) {
@@ -399,7 +507,10 @@ fleet_ef <- function(strata_cell, u) {
   sum(w * strata_cell$ef_type) / sum(w)
 }
 
-# adversarial usage envelope (fixed point, as 260717_ef_fleet_v2.R)
+# Adversarial usage envelope: the widest EF_fleet can move with each u_t at
+# one of its box bounds. Solved by fixed-point iteration because the optimal
+# assignment depends on the resulting mean (types above it go high, below go
+# low). Method first developed in the superseded 260717_ef_fleet_v2.R.
 ENVELOPE_MAX_ITER <- 20
 envelope_ef <- function(strata_cell, maximise) {
   u <- strata_cell$u_central
@@ -434,6 +545,58 @@ ef_results <- strata %>%
            ef_env_high = envelope_ef(s, maximise = TRUE))
   }) %>% ungroup() %>%
   left_join(count_refs, by = c("subgroup", "phase"))
+
+# --- Layer 2b: arrival emissions intensity by arm (the report's headline) ---
+#
+# The proactive channel: how clean each arm's machines are when FIRST SEEN,
+# before any enforcement action. Unweighted mean over machines of the stage-
+# limit EF at the machine's power band, so it answers "how dirty is the
+# average machine arriving on site", not "how much pollution does the fleet
+# emit" (that is EF_fleet in ef_results, which weights by size and usage).
+#
+# Two variants, because dispensation holders are legally compliant but not
+# necessarily clean:
+#   all_machines            - every stage-resolvable record
+#   excl_dispensation       - drops machines that already held a retrofit or
+#                             exemption, isolating the stage distribution
+#
+# gap_pct is the percentage by which the warm (registered) arm's mean arrival
+# EF sits BELOW the cold (counterfactual) arm's: positive means registered
+# fleets arrive cleaner.
+
+arrival_ef_cells <- function(records, group_label, phase_label) {
+  by_arm <- function(subset_records, variant) {
+    subset_records %>%
+      group_by(arm) %>%
+      summarise(n = n(), mean_ef = mean(ef_nox), .groups = "drop") %>%
+      mutate(subgroup = group_label, phase = phase_label, variant = variant)
+  }
+  bind_rows(
+    by_arm(records, "all_machines"),
+    by_arm(filter(records, !dispensation_at_start), "excl_dispensation")
+  )
+}
+
+arrival_ef_long <- bind_rows(
+  # per Machine Group x phase
+  stage_known %>% group_by(subgroup, phase) %>% group_split() %>%
+    lapply(function(r) arrival_ef_cells(r, r$subgroup[1], r$phase[1])) %>% bind_rows(),
+  # per Machine Group, all phases pooled
+  stage_known %>% group_by(subgroup) %>% group_split() %>%
+    lapply(function(r) arrival_ef_cells(r, r$subgroup[1], "All")) %>% bind_rows(),
+  # whole fleet by phase, and whole fleet pooled
+  stage_known %>% group_by(phase) %>% group_split() %>%
+    lapply(function(r) arrival_ef_cells(r, "All_NRMM", r$phase[1])) %>% bind_rows(),
+  arrival_ef_cells(stage_known, "All_NRMM", "All")
+)
+
+arrival_ef <- arrival_ef_long %>%
+  pivot_wider(id_cols = c(subgroup, phase, variant), names_from = arm,
+              values_from = c(n, mean_ef)) %>%
+  rename(n_warm = n_warm_AT, n_cold = n_cold_CF,
+         ef_warm = mean_ef_warm_AT, ef_cold = mean_ef_cold_CF) %>%
+  mutate(gap_pct = round(100 * (1 - ef_warm / ef_cold), 1)) %>%
+  arrange(subgroup, phase, variant)
 
 # --- Layer 3: dynamics — year cells, p-bar, projections ---
 
@@ -618,7 +781,23 @@ if (nrow(projections) > 0) {
 stopifnot(all(USAGE_TABLE$hours_day_high <= 24),
           all(USAGE_TABLE$hours_day_low > 0))
 
-# 2b. referential (halt): v2 payload consistency
+# 2b-v4. referential (halt): new v4 objects are internally consistent
+stopifnot(nrow(arrival_ef) > 0, !any(is.na(arrival_ef$ef_warm)),
+          !any(is.na(arrival_ef$ef_cold)))
+# arrival EF must lie within the stage-limit range actually present
+stopifnot(all(arrival_ef$ef_warm >= min(NOX_LIMIT)),
+          all(arrival_ef$ef_warm <= max(NOX_LIMIT)))
+# the enforcement channel cannot exceed the fleet total, nor be negative
+stopifnot(all(enforcement_nox$nox_saved >= 0),
+          sum(enforcement_nox$nox_saved) <= total_fleet_nox + 1e-9)
+# the two removal-fate definitions must both be well formed
+stopifnot(all(removal_fate$displaced <= removal_fate$traceable))
+# record-level traceable + untraceable must equal the d+e+f outcome total
+stopifnot(removal_fate$traceable[1] + removal_fate$untraceable[1] ==
+            sum(spine$initial_status == "C" &
+                spine$nc_outcome %in% c("d", "e", "f")))
+
+# 2c. referential (halt): dashboard payload consistency
 oc_sum <- outcomes_cells %>%
   summarise(across(starts_with(c("status_", "outcome_")), sum))
 op_sum <- outcomes %>%
@@ -658,7 +837,7 @@ print(as.data.frame(pbar %>% mutate(across(where(is.numeric), ~ round(.x, 4)))))
 fmt <- function(x, d = 3) formatC(round(x, d), format = "f", digits = d)
 
 md <- c(
-  "# nrmm_model_v3 — unified model: outcomes, EF, dynamics (260717)",
+  "# nrmm_model_v4 — unified model: outcomes, EF, dynamics (260717)",
   "",
   "One classified spine; three layers. Arms: warm_AT (treatment), cold_CF",
   "(counterfactual). Eras split at 1 Sep 2020. Constrained Markov: replacement",
@@ -682,6 +861,32 @@ md <- c(
           arrange(subgroup, arm, scenario, year),
         format = "pipe"),
   "",
+  "## 3a. Arrival emissions intensity by arm (proactive channel)",
+  "",
+  "Mean stage-limit NOx (g/kWh) of machines at first sight, per arm.",
+  "gap_pct is how far below the counterfactual the registered arm sits.",
+  "",
+  kable(arrival_ef %>%
+          filter(subgroup == "All_NRMM" | phase == "All") %>%
+          mutate(across(where(is.numeric), ~ round(.x, 2))),
+        format = "pipe"),
+  "",
+  "## 3b. Removal fate under both definitions",
+  "",
+  "Record-level is authoritative (matches the outcome taxonomy); the",
+  "machine-level figure answers a different question and is reported so the",
+  "two are never confused.",
+  "",
+  kable(removal_fate, format = "pipe"),
+  "",
+  "## 3c. Enforcement channel in NOx terms",
+  "",
+  paste0("Shares of audited-fleet NOx (total ",
+         formatC(round(total_fleet_nox), format = "d", big.mark = ","),
+         " g/kWh-machines). Retrofits are credited zero NOx (DPFs abate PM)."),
+  "",
+  kable(enforcement_nox, format = "pipe"),
+  "",
   "## 3. Observed yearly c-bar by Machine Group and arm (model target)",
   "",
   kable(observed_trend %>% filter(n >= YEAR_MIN_N) %>%
@@ -704,7 +909,7 @@ md <- c(
   "  projection, not estimation (n = 63).",
   "- Constant-speed p-bar pooled across arms (cold too thin annually).",
   "- EF projection holds each stage's 2023-24 power-band mix fixed.",
-  "- No bootstrap in v1; p-bar CIs are WLS standard errors, unclustered.",
+  "- No bootstrap; p-bar CIs are WLS standard errors, unclustered.",
   ""
 )
 writeLines(md, output_md)
@@ -712,10 +917,12 @@ cat("Markdown written:", output_md, "\n")
 
 # --- Save model object and manifest ---
 
-nrmm_model_v3 <- list(
-  schema_version = 3L,
+nrmm_model_v4 <- list(
+  schema_version = 4L,
   outcomes = outcomes, outcomes_cells = outcomes_cells,
   stage_populations = stage_populations,
+  arrival_ef = arrival_ef, removal_fate = removal_fate,
+  enforcement_nox = enforcement_nox, total_fleet_nox = total_fleet_nox,
   ef_results = ef_results, strata = strata,
   usage_index = USAGE_INDEX, usage_table = USAGE_TABLE,
   excavator_energy_day = EXCAVATOR_ENERGY_DAY,
@@ -724,16 +931,16 @@ nrmm_model_v3 <- list(
   threshold_schedule = threshold_schedule,
   proj_init = proj_init, stage_ef = stage_ef, nox_limit = NOX_LIMIT
 )
-saveRDS(nrmm_model_v3, "intermediate_data/nrmm_model_v3.rds")
+saveRDS(nrmm_model_v4, "intermediate_data/nrmm_model_v4.rds")
 
 manifest_path <- "intermediate_data/manifest.md"
 manifest_row <- paste0(
-  "| Model | nrmm_model_v3 | nrmm_model_v3.rds | list | ",
-  nrow(outcomes_cells), " year-cells; ", nrow(stage_populations),
-  " stage-population rows; ", nrow(projections), " projection rows | ",
-  "Unified NRMM model v3: hours/day usage table (24h cap), observed stage ",
-  "populations per subgroup x arm x year, projected stage vectors pi_1..pi_7 ",
-  "per scenario year. |"
+  "| Model | nrmm_model_v4 | nrmm_model_v4.rds | list | ",
+  nrow(outcomes_cells), " year-cells; ", nrow(arrival_ef), " arrival-EF cells; ",
+  nrow(projections), " projection rows | ",
+  "Authoritative NRMM model: v3 plus arrival emissions intensity by arm, ",
+  "removal fate under both definitions, and the enforcement channel in NOx ",
+  "terms; every reported figure traces to this object. |"
 )
 if (file.exists(manifest_path)) {
   cat(manifest_row, "\n", file = manifest_path, append = TRUE)
@@ -742,5 +949,5 @@ if (file.exists(manifest_path)) {
                "|---|---|---|---|---|---|", manifest_row), manifest_path)
 }
 
-cat("Completion summary: nrmm_model_v3 (list), ", length(nrmm_model_v3),
+cat("Completion summary: nrmm_model_v4 (list), ", length(nrmm_model_v4),
     " elements; spine ", nrow(spine), " records\n", sep = "")

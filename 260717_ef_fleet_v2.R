@@ -1,5 +1,14 @@
 #!/usr/bin/env Rscript
 
+# =====================================================================
+# SUPERSEDED - development history only, NOT authoritative.
+# Superseded by: nrmm_model_v4.R (Layer 2)
+# Retained so earlier results remain reproducible. Some definitions here
+# differ from the current model (notably removal fate, retrofit NOx credit
+# and the usage-index basis), so numbers from this script will not always
+# match the current report. Do not cite it. See notes.md, "State of play".
+# =====================================================================
+
 # Fleet-effective EF v2 — option 2: type-stratified convex-combination model.
 #
 # Model: for each sub-group S and phase, the fleet EF is

@@ -1,43 +1,40 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_dashboard_v4.R
-# Retained so earlier results remain reproducible. Some definitions here
-# differ from the current model (notably removal fate, retrofit NOx credit
-# and the usage-index basis), so numbers from this script will not always
-# match the current report. Do not cite it. See notes.md, "State of play".
-# =====================================================================
-
-# nrmm_dashboard_v3 — unified dashboard over nrmm_model_v3.rds.
+# nrmm_dashboard_v4 — unified dashboard over nrmm_model_v4.rds.
 #
-# v3 changes: plain-English pass. Arcane labels (p-bar, c-bar, parity,
-# pooled-arm, EF_t, arm codes) replaced or explained; hover tooltips on
-# category headers, arm rows and badges; a Glossary view added.
+# THIS IS THE AUTHORITATIVE DASHBOARD SCRIPT. It consumes the saved model
+# object ONLY and never re-derives anything from audits.txt: the
+# classification, emissions strata, replacement-rate fits and projections are
+# all computed once in nrmm_model_v4.R. Anything shown here that is not in
+# that object is a bug.
 #
-# v2 changes: usage sliders expressed in HOURS/DAY (load factor fixed per
-# type, 24 h cap); new "Stage populations" view showing observed stage-share
-# stacked bars per year and arm with projected 2025-2030 bars driven by the
-# p-bar scenario slider. Stage shares only; absolute machine populations
-# require the registration database multiplier.
+# v4 changes: consumes schema_version 4; surfaces the arrival emissions
+# intensity by arm (the report's headline finding, new in model v4) in the
+# emissions view; header and inline documentation corrected (v3 wrongly said
+# it read nrmm_model_v2.R, and still described the pre-hours/day sliders).
 #
-# Consumes the model object ONLY (no re-derivation from audits.txt): the
-# classification, EF strata, p-bar fits and projections are computed once in
-# nrmm_model_v2.R and rendered here. Standalone self-contained HTML with
-# client-side switching (v5 dashboard architecture, viewport fill fix).
+# v3 changes: plain-English pass over every user-visible string; hover
+# tooltips on category headers, arm rows and badges; Glossary view.
+# v2 changes: hours/day usage sliders; Stage populations view.
 #
-# Views:
-#   Outcomes tree / Outcomes table — the v5 taxonomy views, driven from
-#     year-keyed outcome cells; Group and Year margins are client-side sums.
-#   EF — type-stratified convex combination with usage-index sliders for
-#     Generator and Excavator (the two OAT-dominant types) and a grouped
-#     control for all other types; adversarial envelope always displayed.
-#   Trends & projections — observed yearly c-bar (or mean stage) per arm with
-#     era break and threshold steps, projection fan 2025-2030, and a p-bar
-#     multiplier slider re-running the one-parameter recursion in JS.
+# Views (all share the Group / Year / Phase controls in the bar):
+#   Outcomes table  - warm and cold as rows, initial status and outcome
+#                     mechanism as columns, with a gap row. Any Group or Year
+#                     margin is a client-side sum over the year-keyed cells.
+#   Outcomes tree   - the same numbers as a hierarchy, drawn in visNetwork.
+#   EF              - fleet emissions intensity as a convex combination over
+#                     machine types, with hours/day sliders for the two types
+#                     the sensitivity analysis showed actually matter, plus
+#                     the arrival intensity by arm.
+#   Stage populations - observed and projected stage mix per year and arm.
+#   Trends & projections - observed compliance per arm plus the 2025-2030
+#                     projection fan, with a replacement-rate slider.
+#   Glossary        - plain-English definitions of every term used.
 #
-# Parity check: at multiplier 1 the JS recursion must reproduce the R central
-# projections; asserted on load, badge shown in the control bar.
+# Self-check: the browser re-runs the projection recursion and asserts it
+# matches the R model's central projections exactly; the result is the
+# "checks" badge in the control bar. A failure there means the JS and R
+# implementations have diverged and the projections must not be trusted.
 
 library(dplyr)
 library(tidyr)
@@ -46,15 +43,15 @@ library(htmlwidgets)
 library(htmltools)
 
 CONTROL_BAR_HEIGHT_PX <- 118
-MODEL_PATH  <- "intermediate_data/nrmm_model_v3.rds"
-OUTPUT_FILE <- "nrmm_dashboard_v3.html"
+MODEL_PATH  <- "intermediate_data/nrmm_model_v4.rds"
+OUTPUT_FILE <- "nrmm_dashboard_v4.html"
 
 # --- Load and check the model object ---
 
 cat("Loading model object...\n")
 model <- readRDS(MODEL_PATH)
-if (is.null(model$schema_version) || model$schema_version != 3L) {
-  stop("Model object schema_version != 3; rebuild with nrmm_model_v3.R")
+if (is.null(model$schema_version) || model$schema_version != 4L) {
+  stop("Model object schema_version != 4; rebuild with nrmm_model_v4.R")
 }
 
 # --- Payload verification (halt on inconsistency) ---
@@ -68,6 +65,9 @@ stopifnot(all(rowSums(cells[status_cols]) == cells$n))
 stopifnot(all(rowSums(cells[outcome_cols]) == cells$status_C))
 stopifnot(all(model$ef_results$ef_env_low  <= model$ef_results$ef_central + 1e-9),
           all(model$ef_results$ef_env_high >= model$ef_results$ef_central - 1e-9))
+stopifnot(is.data.frame(model$arrival_ef), nrow(model$arrival_ef) > 0,
+          all(c("subgroup", "phase", "variant", "ef_warm", "ef_cold", "gap_pct")
+              %in% names(model$arrival_ef)))
 
 # p-bar defaults per Machine Group x arm (era 2; Constant_Speed pooled)
 pbar_default <- bind_rows(lapply(
@@ -99,6 +99,7 @@ payload <- list(
   pbar_default = df_to_rowlist(pbar_default),
   pbar_table   = df_to_rowlist(model$pbar %>% mutate(across(where(is.numeric), ~ round(.x, 4)))),
   stage_pop    = df_to_rowlist(model$stage_populations),
+  arrival_ef   = df_to_rowlist(model$arrival_ef),
   ex_base      = model$excavator_energy_day
 )
 
@@ -114,7 +115,7 @@ graph <- visNetwork(init_nodes, init_edges, width = "100%", height = "100%") %>%
                         shakeTowards = "roots") %>%
   visPhysics(solver = "hierarchicalRepulsion",
              hierarchicalRepulsion = list(nodeDistance = 110, avoidOverlap = 1)) %>%
-  visExport(type = "pdf", name = "nrmm_dashboard_v3", label = "Export as PDF")
+  visExport(type = "pdf", name = "nrmm_dashboard_v4", label = "Export as PDF")
 
 viewport_css <- sprintf("
   html, body { margin: 0; padding: 0; height: 100%%; }
@@ -199,6 +200,10 @@ js_code <- "function(el, x, data) {
   var phSel   = document.getElementById('phSel');
 
   // ---------- aggregation helpers ----------
+  // Group and Year margins are sums over the year-keyed cells from the model
+  // object; nothing is recomputed from raw audits. The All_Groups and All
+  // Years selections simply widen the filter, which is valid because the
+  // cells are disjoint counts.
   function cellsFor(group, year) {
     return data.cells.filter(function(c) {
       return (group === 'All_Groups' || c.subgroup === group) &&
@@ -402,6 +407,25 @@ js_code <- "function(el, x, data) {
       'the envelope shows the widest the answer can move within the stated hour ranges (24 h ' +
       'physical cap). Slider positions are assumptions, not knowledge. PLACEHOLDER values ' +
       'pending sourced hours-per-day estimates.</div>';
+    // Arrival intensity by arm: the proactive channel, independent of the
+    // usage sliders because it is an unweighted per-machine mean.
+    var arr = data.arrival_ef.filter(function(r) {
+      return r.subgroup === efGroupMap[group] && r.phase === phase &&
+             r.variant === 'excl_dispensation';
+    })[0];
+    if (arr) {
+      html += '<div style=\"margin:6px 0 14px;padding:8px 10px;background:#f4f6f7;' +
+        'border-left:4px solid ' + WARM + ';max-width:820px;\">' +
+        '<b>How clean machines are when they arrive</b> (average machine, before any ' +
+        'enforcement action; excludes machines already holding a retrofit or exemption)<br>' +
+        '<span style=\"color:' + WARM + ';font-weight:bold;\">Registered ' +
+        arr.ef_warm.toFixed(2) + ' g/kWh</span> (' + arr.n_warm + ' machines) &nbsp; vs &nbsp;' +
+        '<span style=\"color:' + COLD + ';font-weight:bold;\">Unregistered ' +
+        arr.ef_cold.toFixed(2) + ' g/kWh</span> (' + arr.n_cold + ' machines) &nbsp;&rarr;&nbsp; ' +
+        '<b>registered fleets arrive ' + arr.gap_pct.toFixed(1) + '% cleaner</b>' +
+        '<div style=\"color:#888;padding-top:4px;\">This is a per-machine average, so it ' +
+        'is unaffected by the usage sliders above, which weight machines by size and hours.</div></div>';
+    }
     html += '<table style=\"border-collapse:collapse;font:12px Arial;\">' +
       '<tr>' + ['Machine type','machines audited','average engine kW','type rate g/kWh','hours/day central','hours/day low','hours/day high','load factor'].map(function(h) {
         return '<th style=\"' + CELL + 'background:#455A64;color:white;font-weight:normal;\">' + h + '</th>';
@@ -442,6 +466,12 @@ js_code <- "function(el, x, data) {
     })[0];
     return row ? row.thr : null;
   }
+  // Client-side copy of the R model's constrained transition matrix. Each
+  // year, machines below the market-top stage (index 6 = Stage V) move there
+  // with probability p; everything else stays put. Kept in JS only so the
+  // slider can explore scenarios interactively; parityCheck() below proves it
+  // reproduces the R results exactly at the fitted rate, so the two
+  // implementations cannot silently diverge.
   function project(group, arm, p) {
     var init = data.proj_init.filter(function(r) {
       return r.subgroup === group && r.arm === arm;
@@ -460,6 +490,10 @@ js_code <- "function(el, x, data) {
     }
     return out;
   }
+  // Self-check run once on load: re-derive every central projection in the
+  // browser and compare with the values R computed. Any mismatch means the
+  // two implementations disagree, which invalidates every projection shown,
+  // so it is surfaced as a badge rather than logged silently.
   function parityCheck() {
     var ok = true, checked = 0;
     data.pbar_default.forEach(function(pd) {
@@ -781,5 +815,5 @@ js_code <- "function(el, x, data) {
 graph <- htmlwidgets::onRender(graph, js_code, data = payload)
 
 htmlwidgets::saveWidget(graph, OUTPUT_FILE, selfcontained = TRUE,
-                        title = "NRMM unified dashboard v3")
+                        title = "NRMM unified dashboard v4")
 cat("Saved:", normalizePath(OUTPUT_FILE), "\n")

@@ -1,5 +1,14 @@
 #!/usr/bin/env Rscript
 
+# =====================================================================
+# SUPERSEDED - development history only, NOT authoritative.
+# Superseded by: nrmm_dashboard_v4.R
+# Retained so earlier results remain reproducible. Some definitions here
+# differ from the current model (notably removal fate, retrofit NOx credit
+# and the usage-index basis), so numbers from this script will not always
+# match the current report. Do not cite it. See notes.md, "State of play".
+# =====================================================================
+
 # nrmm_dashboard_v2 — unified dashboard over nrmm_model_v3.rds.
 #
 # v2 changes: usage sliders expressed in HOURS/DAY (load factor fixed per
