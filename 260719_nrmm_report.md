@@ -2,6 +2,15 @@
 
 **Draft for policy and programme staff | 19 July 2026**
 
+> **⚠ DRAFT UNDER QUERY — DO NOT CIRCULATE (28 July 2026).** Section 1 bullet 5, section 6
+> and section 8 state that generators are not upgrading and that constant-speed compliance
+> stays near zero to 2030. That is probably an artefact of how `Engine Type` is recorded:
+> every Stage V generator is recorded "Variable", so generators leave the Constant Speed
+> group exactly when they improve. Corrected, the group's mean stage rises 2.96 → 4.57 over
+> 2021-24. Queries are with the audit team (`260726_audit_data_queries.md`); impacts are in
+> `260726_capture_issues_memo.md`. The arrival-composition, replacement-rate and enforcement
+> findings were tested against the correction and hold.
+
 This report explains, in plain English, how we analysed nine years of machine audits from London's Non-Road Mobile Machinery (NRMM) Low Emission Zone, what we found, and how confident we can be. Technical detail sits in boxed notes for specialist readers; the main thread can be read without them. An interactive dashboard accompanies this report (`nrmm_dashboard_v4.html`), including a glossary of terms. Every figure quoted here is reproducible from the model object; section 12 maps each claim to the exact object and script that produces it.
 
 ---
