@@ -1,12 +1,11 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_dashboard_v5.R
-# Retained so earlier results remain reproducible. See notes.md.
-# =====================================================================
-
-# nrmm_dashboard_v4 — unified dashboard over nrmm_model_v4.rds.
+# nrmm_dashboard_v5 — unified dashboard over nrmm_model_v5.rds.
+#
+# ***** PROVISIONAL BUILD FOR SHARING WITH THE AUDIT TEAM *****
+# Carries a standing banner and a "Data queries" view showing the open
+# classification question and what changes under the alternative reading.
+# Constant Speed results are not to be cited until that question is answered.
 #
 # THIS IS THE AUTHORITATIVE DASHBOARD SCRIPT. It consumes the saved model
 # object ONLY and never re-derives anything from audits.txt: the
@@ -49,21 +48,21 @@ library(htmlwidgets)
 library(htmltools)
 
 CONTROL_BAR_HEIGHT_PX <- 118
-MODEL_PATH  <- "intermediate_data/nrmm_model_v4.rds"
-OUTPUT_FILE <- "nrmm_dashboard_v4.html"
+MODEL_PATH  <- "intermediate_data/nrmm_model_v5.rds"
+OUTPUT_FILE <- "nrmm_dashboard_v5.html"
 
 # --- Load and check the model object ---
 
 cat("Loading model object...\n")
 model <- readRDS(MODEL_PATH)
-if (is.null(model$schema_version) || model$schema_version != 4L) {
-  stop("Model object schema_version != 4; rebuild with nrmm_model_v4.R")
+if (is.null(model$schema_version) || model$schema_version != 5L) {
+  stop("Model object schema_version != 5; rebuild with nrmm_model_v5.R")
 }
 
 # --- Payload verification (halt on inconsistency) ---
 
 cells <- model$outcomes_cells
-status_cols  <- paste0("status_", c("A", "B", "C", "D", "E"))
+status_cols  <- paste0("status_", c("A", "B", "C", "D", "E", "X"))
 outcome_cols <- paste0("outcome_", letters[1:9])
 stopifnot(all(c("subgroup", "year", "arm", "n", status_cols, outcome_cols)
               %in% names(cells)))
@@ -106,6 +105,11 @@ payload <- list(
   pbar_table   = df_to_rowlist(model$pbar %>% mutate(across(where(is.numeric), ~ round(.x, 4)))),
   stage_pop    = df_to_rowlist(model$stage_populations),
   arrival_ef   = df_to_rowlist(model$arrival_ef),
+  sens_trend   = df_to_rowlist(model$classification_sensitivity_trend),
+  sens_group   = df_to_rowlist(model$classification_sensitivity),
+  removal_year = df_to_rowlist(model$removal_fate_by_year),
+  flags        = df_to_rowlist(model$structural_flags),
+  provisional  = model$provisional_note,
   ex_base      = model$excavator_energy_day
 )
 
@@ -121,7 +125,7 @@ graph <- visNetwork(init_nodes, init_edges, width = "100%", height = "100%") %>%
                         shakeTowards = "roots") %>%
   visPhysics(solver = "hierarchicalRepulsion",
              hierarchicalRepulsion = list(nodeDistance = 110, avoidOverlap = 1)) %>%
-  visExport(type = "pdf", name = "nrmm_dashboard_v4", label = "Export as PDF")
+  visExport(type = "pdf", name = "nrmm_dashboard_v5", label = "Export as PDF")
 
 viewport_css <- sprintf("
   html, body { margin: 0; padding: 0; height: 100%%; }
@@ -135,10 +139,11 @@ graph <- htmlwidgets::prependContent(graph, tags$style(HTML(viewport_css)))
 
 js_code <- "function(el, x, data) {
   var WARM = '#1565C0', COLD = '#E65100';
-  var STATUS_KEYS = ['A','B','C','D','E'];
+  var STATUS_KEYS = ['A','B','C','D','E','X'];
   var STATUS_LABELS = {A:'Stage-Compliant at Start', B:'Dispensation Held at Start',
-    C:'Emissions Non-Compliant at Start', D:'Admin Issue Only (no E code)', E:'Unresolvable'};
-  var STATUS_COLOURS = {A:'#2E7D32', B:'#00695C', C:'#37474F', D:'#546E7A', E:'#424242'};
+    C:'Emissions Non-Compliant at Start', D:'Admin Issue Only (no E code)', E:'Unresolvable',
+    X:'No Determination Made'};
+  var STATUS_COLOURS = {A:'#2E7D32', B:'#00695C', C:'#37474F', D:'#546E7A', E:'#424242', X:'#8D6E63'};
   var OUTCOME_KEYS = ['a','b','c','d','e','f','g','h','i'];
   var OUTCOME_LABELS = {a:'Replaced On the Spot', b:'Stage Upgraded', c:'Retrofitted In-Audit',
     d:'Removed: Reappears Elsewhere', e:'Removed: Not Seen Again', f:'Removed: No TAN',
@@ -156,6 +161,7 @@ js_code <- "function(el, x, data) {
     C: 'Engine stage below the required standard, with no retrofit or exemption',
     D: 'Paperwork problem only (such as not being registered); never shown to breach the emissions standard',
     E: 'Not enough information recorded to determine status',
+    X: 'The visit logged a site-level status (baselining, site complete, no apparent works, declined audit) rather than a judgement about this machine, so no compliance determination was made. The stage is kept; the outcome is not counted.',
     a: 'Non-compliant machine swapped for a compliant one during the audit',
     b: 'Same machine recorded at a cleaner stage by the end of the audit',
     c: 'Exhaust clean-up equipment fitted during the audit',
@@ -186,12 +192,18 @@ js_code <- "function(el, x, data) {
       '<option value=\"stagepop\">Stage populations</option>' +
       '<option value=\"trend\">Trends &amp; projections</option>' +
       '<option value=\"gloss\">Glossary</option>' +
+      '<option value=\"queries\">Data queries (open)</option>' +
     '</select>' +
     ' &nbsp; Group: <select id=\"grpSel\"></select>' +
     ' <span id=\"yrWrap\"> &nbsp; Year: <select id=\"yrSel\"></select></span>' +
     ' <span id=\"phWrap\" style=\"display:none;\"> &nbsp; Phase: <select id=\"phSel\"></select></span>' +
     ' &nbsp; <span id=\"parity\" style=\"font-weight:bold;\"></span>' +
-    '<div id=\"summary\" style=\"color:#555;\"></div>';
+    '<div id=\"summary\" style=\"color:#555;\"></div>' +
+    '<div style=\"margin-top:4px;padding:6px 10px;background:#FFF4E5;' +
+    'border-left:4px solid #B45309;font-size:12.5px;color:#5c3d00;\">' +
+    '<b>Provisional.</b> Figures for the <b>Constant Speed</b> group are affected by an open ' +
+    'question about how Engine Type is recorded for generators, and should not be quoted yet. ' +
+    'See the <b>Data queries</b> view. All other groups are unaffected.</div>';
   el.parentNode.insertBefore(bar, el);
 
   var pane = document.createElement('div');
@@ -737,6 +749,66 @@ js_code <- "function(el, x, data) {
       '<div style=\"color:#888;padding-top:8px;\">Most coloured table headers and badges also explain themselves when you hover over them.</div>';
   }
 
+  // ---------- data queries (open questions for the audit team) ----------
+  function renderQueries() {
+    var TB = 'border:1px solid #ccc;padding:5px 9px;text-align:center;';
+    function tbl(rows, cols, hdrs) {
+      return '<table style=\"border-collapse:collapse;font:12.5px Arial;margin:6px 0 14px;\">' +
+        '<tr>' + hdrs.map(function(h){ return '<th style=\"' + TB +
+          'background:#455A64;color:white;font-weight:normal;\">' + h + '</th>'; }).join('') + '</tr>' +
+        rows.map(function(r){ return '<tr>' + cols.map(function(c){
+          var v = r[c]; if (v === null || v === undefined) v = '-';
+          return '<td style=\"' + TB + '\">' + v + '</td>'; }).join('') + '</tr>'; }).join('') +
+        '</table>';
+    }
+    var st = data.sens_trend.filter(function(r){ return r.year >= 2020; });
+    var html =
+      '<div style=\"max-width:1000px;\">' +
+      '<div style=\"font-weight:bold;font-size:15px;padding:2px 0 8px;\">Open questions on the audit data</div>' +
+      '<p>These are things in the recorded data I can\\'t interpret on my own. Nothing here is a ' +
+      'criticism of the recording; in most cases I expect there is a practice or piece of guidance ' +
+      'I simply don\\'t know about. The full list is in the accompanying note.</p>' +
+
+      '<div style=\"font-weight:bold;padding:10px 0 4px;\">1. Engine Type on generators ' +
+      '<span style=\"font-weight:normal;color:#B45309;\">(affects the Constant Speed group)</span></div>' +
+      '<p>All 218 generators recorded at Stage V carry Engine Type \"Variable\"; none carries \"Constant\". ' +
+      'Stage IIIA generators audited in the same years are 80% \"Constant\". Because the Constant Speed ' +
+      'group is defined by that field, generators leave the group at the moment they upgrade, so the ' +
+      'group cannot show improvement. Below is the same group read both ways.</p>' +
+      tbl(st, ['year','mode','n','mean_stage','pct_stage_v_plus'],
+          ['Year','Reading of Engine Type','Machines','Average stage','% at Stage V or better']) +
+      '<p style=\"color:#666;\">I don\\'t assume the second reading is right: hybrid, flywheel and ' +
+      'flybrid units in your data split 37 \"Constant\" to 51 \"Variable\", which looks deliberate. ' +
+      'That\\'s exactly why I\\'d like your view.</p>' +
+
+      '<div style=\"font-weight:bold;padding:10px 0 4px;\">2. What the checks flagged automatically</div>' +
+      tbl(data.flags, ['check','detail'], ['Check','What it found']) +
+
+      '<div style=\"font-weight:bold;padding:10px 0 4px;\">3. Machines removed from site, by year</div>' +
+      '<p>I use the TAN to see whether a machine removed from one site turns up at another. Usable ' +
+      'TANs only appear from 2021, and a machine removed recently has had less time to reappear, so ' +
+      'the later percentages are understated rather than genuinely lower.</p>' +
+      tbl(data.removal_year, ['year','removals','traceable','displaced','displaced_pct','observation_window_yrs'],
+          ['Year','Removals','Traceable','Seen again','% seen again','Years of follow-up']) +
+
+      '<div style=\"font-weight:bold;padding:10px 0 4px;\">4. Also on the list</div>' +
+      '<ul>' +
+      '<li><b>Crushers:</b> 15 records are \"Constant\", all at Stage IIIA; all 76 at IIIB, IV and V are \"Variable\".</li>' +
+      '<li><b>\"Electric\" in the stage field</b> (31 records, growing from 1 in 2022 to 15 in 2025): should this read as zero-emission?</li>' +
+      '<li><b>\"Uncertified\" as a stage</b> (25 records): no approval at all, or approval not confirmed on the day?</li>' +
+      '<li><b>\"Pending\" as a final outcome</b> (23 records, 2018-2020): still open at extract, or something more specific?</li>' +
+      '<li><b>Same machine, different stage</b> across visits: 30 machines, two of them differing by four stages.</li>' +
+      '<li><b>\"Inappropriate for Audit\"</b> (131 records): treat as out of scope, like \"No NRMM\"?</li>' +
+      '</ul>' +
+
+      '<div style=\"font-weight:bold;padding:10px 0 4px;\">5. What I\\'ve already handled</div>' +
+      '<p>Where a visit logged a site-level status (baselining, site complete, no apparent works, ' +
+      'declined audit) against a machine, I now keep the machine\\'s stage but don\\'t count it as a ' +
+      'compliance judgement, since none was made. That affects 60 records, 34 of them in 2025.</p>' +
+      '</div>';
+    pane.innerHTML = html;
+  }
+
   // ---------- summary strip + dispatch ----------
   function updateSummary(warm, cold, nAll) {
     var conf = ['a','b','c'].reduce(function(acc, k) {
@@ -778,6 +850,10 @@ js_code <- "function(el, x, data) {
     if (view === 'gloss') {
       document.getElementById('summary').innerHTML = 'Plain-English guide to the terms used across the views.';
     }
+    if (view === 'queries') {
+      document.getElementById('summary').innerHTML =
+        'Things in the recorded data I would like to check with the audit team before finalising.';
+    }
     if (view === 'tree') {
       pane.style.display = 'none'; el.style.display = 'block';
       renderTree(warm, cold, nAll, grpSel.value.replace(/_/g, ' ') + ' - ' + yrSel.value);
@@ -788,6 +864,7 @@ js_code <- "function(el, x, data) {
       if (view === 'trend') renderTrend();
       if (view === 'stagepop') renderStagePop();
       if (view === 'gloss') renderGlossary();
+      if (view === 'queries') renderQueries();
     }
   }
 
@@ -821,5 +898,5 @@ js_code <- "function(el, x, data) {
 graph <- htmlwidgets::onRender(graph, js_code, data = payload)
 
 htmlwidgets::saveWidget(graph, OUTPUT_FILE, selfcontained = TRUE,
-                        title = "NRMM unified dashboard v4")
+                        title = "NRMM dashboard v5 (provisional - classification query open)")
 cat("Saved:", normalizePath(OUTPUT_FILE), "\n")

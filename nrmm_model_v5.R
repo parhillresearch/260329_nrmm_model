@@ -1,16 +1,45 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_model_v5.R
-# Retained so earlier results remain reproducible. See notes.md.
-# =====================================================================
-
-# nrmm_model_v4 — unified NRMM model: one classified data spine, three layers.
+# nrmm_model_v5 — unified NRMM model: one classified data spine, three layers.
 #
 # THIS IS THE AUTHORITATIVE MODEL SCRIPT. Every figure in
 # 260719_nrmm_report.md traces to an object saved here; see the cross-
 # reference table in that report (section 12) and in notes.md.
+#
+# ***** PROVISIONAL: CLASSIFICATION QUERY OPEN *****
+# The Constant Speed group is defined by `Engine Type`, and every Stage V
+# generator in the data is recorded "Variable". Generators therefore leave
+# the group exactly when they improve, which drives that group's results to
+# a structural zero. The classification intent is with the audit team
+# (260726_audit_data_queries.md). Until it is answered, GENERATOR_MODE below
+# stays at "as_recorded" and `classification_sensitivity` reports what
+# changes under the alternative. Do not cite Constant Speed results.
+#
+# v5 changes (unblocked fixes from 260726_code_fix_checklist.md):
+#   B2  stage strings normalised before mapping, so case typos ("iIIB",
+#       "iV") resolve instead of silently becoming NA
+#   B4  stage_inconsistency: machines recorded at different stages across
+#       visits, with the size of each discrepancy
+#   C2  site-level markers (Baselining, Site Complete, No Apparent Works,
+#       DECLINED AUDIT) logged into machine compliance fields now take
+#       status "X": the stage is kept, the compliance outcome is voided,
+#       because no determination was made on that visit
+#   C4  removal_fate_by_year: displacement by year of removal with the
+#       observation window, since TAN capture begins in 2021 and recent
+#       removals are right-censored
+#   D1  TYPE_CANONICAL extended ("Mewp", "Drilling rig")
+#   D2  machine type normalised once at ingestion, case- and
+#       whitespace-insensitive thereafter
+#   A3  GENERATOR_MODE exposed as an explicit switch with a sensitivity
+#       table, restoring what tree_dashboard_v3-v5 had before unification
+#   E1  structural implausibility checks (zero-compliance groups, zero
+#       fitted rates, categories empty above a stage)
+#   E2  unmapped_values: every distinct categorical input value is either
+#       mapped or explicitly excluded with a count
+#   E3  population stability check: cohorts that shrink as the fleet
+#       improves are the signature shared by the generator and Electric
+#       problems
+#   schema_version = 5
 #
 # v4 changes (review-readiness pass): three quantities that the report cited
 # but no committed script computed are now derived here, so every reported
@@ -139,7 +168,27 @@ REPLACEMENT_STAGE_ASSUMED <- 6L
 NAMED_TYPES <- c("Excavator", "Generator", "Telehandler", "Dumper",
                  "Piling Rig", "Pump", "Mobile Crane", "Crusher",
                  "Crawler Crane", "Roller", "MEWP", "Compressor")
-TYPE_CANONICAL <- c("Piling rig" = "Piling Rig")
+# D1/D2: machine type is free text. Normalise case and whitespace once, then
+# map known variants onto a canonical label. Keys are lower case.
+TYPE_CANONICAL <- c(
+  "piling rig"    = "Piling Rig",
+  "mewp"          = "MEWP",
+  "drilling rig"  = "Drilling Rig"
+)
+
+# A3: how generators are assigned to a Machine Group. "as_recorded" trusts the
+# Engine Type field; "generators_constant" assigns anything whose machine type
+# names a generator to Constant Speed. The classification query is open, so the
+# default trusts the data and the alternative is reported as a sensitivity.
+GENERATOR_MODE <- "as_recorded"     # or "generators_constant"
+
+# C2: site-level audit states that appear in machine-level compliance fields.
+# These visits made no compliance determination about the machine.
+SITE_LEVEL_STATES <- c("baselining", "site complete", "no apparent works",
+                       "declined audit")
+
+# Machine types that are not machines in scope.
+OUT_OF_SCOPE_TYPES <- c("no nrmm")
 
 # PLACEHOLDER usage: HOURS/DAY per type (central and bounds, capped at 24)
 # with a fixed load factor; u_t = hours_day_t x load_factor_t normalised to
@@ -173,14 +222,14 @@ NON_DISPENSATION_VALUES <- c("", "none", "rejected", "pending", "non",
                              "no nrmm", "unidentified")
 UNUSABLE_TAN_VALUES <- c("", "unidentified", "none", "n/a", "na")
 
-STATUS_KEYS  <- c("A", "B", "C", "D", "E")
+STATUS_KEYS  <- c("A", "B", "C", "D", "E", "X")
 OUTCOME_KEYS <- letters[1:9]
 
 YEAR_MIN_N    <- 20      # minimum year-cell n for trend estimation
 PROJ_YEARS    <- 2025:2030
 PROJ_BASE_YEARS <- c(2023, 2024)   # pooled initial distribution
 
-output_md <- "outputs/nrmm_model_v4.md"
+output_md <- "outputs/nrmm_model_v5.md"
 
 # --- Load input data ---
 
@@ -199,12 +248,18 @@ if (length(missing_cols) > 0) {
 
 normalise_text <- function(x) trimws(tolower(ifelse(is.na(x), "", as.character(x))))
 
-stage_to_int <- function(x) case_when(
-  x %in% c("I", "1") ~ 1L, x %in% c("II", "2") ~ 2L,
-  x %in% c("IIIA", "3") ~ 3L, x %in% c("IIIB", "4") ~ 4L,
-  x %in% c("IV", "5") ~ 5L, x %in% c("V", "6") ~ 6L,
-  x == "ZE" ~ 7L, TRUE ~ NA_integer_
-)
+# B2: normalise case and whitespace before matching, so "iIIB" and "iV"
+# resolve rather than silently becoming NA. Values that remain unmatched are
+# counted and reported by the E2 check rather than dropped in silence.
+stage_to_int <- function(x) {
+  k <- toupper(trimws(ifelse(is.na(x), "", as.character(x))))
+  case_when(
+    k %in% c("I", "1") ~ 1L, k %in% c("II", "2") ~ 2L,
+    k %in% c("IIIA", "3") ~ 3L, k %in% c("IIIB", "4") ~ 4L,
+    k %in% c("IV", "5") ~ 5L, k %in% c("V", "6") ~ 6L,
+    k == "ZE" ~ 7L, TRUE ~ NA_integer_
+  )
+}
 
 parse_kw <- function(x) {
   numeric_kw <- suppressWarnings(as.numeric(x))
@@ -254,10 +309,22 @@ spine <- audits %>%
   mutate(
     cold_engaged = `Cold-Engaged` == "Yes",
     arm = if_else(cold_engaged, "cold_CF", "warm_AT"),
+    # D2: normalise machine type once, then map known variants (D1)
+    machine_type_key = tolower(trimws(ifelse(is.na(`Machine Type`), "",
+                                             as.character(`Machine Type`)))),
+    machine_type_clean = coalesce(TYPE_CANONICAL[machine_type_key],
+                                  trimws(as.character(`Machine Type`))),
+    is_generator = grepl("generator", machine_type_key, fixed = TRUE),
+    # A3: engine type used for grouping, under the selected classification mode
+    engine_effective = if (GENERATOR_MODE == "generators_constant") {
+      if_else(is_generator, "Constant", `Engine Type`)
+    } else {
+      `Engine Type`
+    },
     subgroup = case_when(
-      `Engine Type` == "Constant"                              ~ "Constant_Speed",
-      `Engine Type` == "Variable" & Zone %in% c("CAZ", "OA") ~ "CAZ_Plus",
-      `Engine Type` == "Variable" & Zone == "GL"              ~ "Rest_of_London",
+      engine_effective == "Constant"                              ~ "Constant_Speed",
+      engine_effective == "Variable" & Zone %in% c("CAZ", "OA") ~ "CAZ_Plus",
+      engine_effective == "Variable" & Zone == "GL"              ~ "Rest_of_London",
       TRUE ~ NA_character_
     ),
     engine = if_else(subgroup == "Constant_Speed", "Constant", "Variable"),
@@ -300,7 +367,14 @@ spine <- audits %>%
                      grepl("viab|covid|emerg|short|exempt|other|block",
                            final_retrofit_norm),
     officer_final_compliant = final_compliance_norm == "compliant",
+    # C2: a site-level state logged in a machine compliance field means the
+    # visit made no determination about this machine. Keep its stage (fleet
+    # composition is real data) but void the compliance outcome.
+    no_determination = tolower(trimws(ifelse(is.na(`Initial Machinery Compliance`), "",
+                                   as.character(`Initial Machinery Compliance`))))
+                       %in% SITE_LEVEL_STATES,
     initial_status = case_when(
+      no_determination      ~ "X",
       initial_stage_ok      ~ "A",
       dispensation_at_start ~ "B",
       !is.na(initial_stage) ~ "C",
@@ -320,11 +394,10 @@ spine <- audits %>%
       TRUE                                ~ "i"
     ),
     kw_parsed = parse_kw(`kW Power`),
-    machine_type_raw = trimws(`Machine Type`),
-    machine_type = coalesce(TYPE_CANONICAL[machine_type_raw], machine_type_raw),
-    machine_type = if_else(machine_type %in% NAMED_TYPES, machine_type, "Other")
+    machine_type = if_else(machine_type_clean %in% NAMED_TYPES,
+                           machine_type_clean, "Other")
   ) %>%
-  filter(!is.na(subgroup), machine_type_raw != "No NRMM")
+  filter(!is.na(subgroup), !machine_type_key %in% OUT_OF_SCOPE_TYPES)
 
 machine_type_median_kw <- spine %>%
   filter(!is.na(kw_parsed)) %>%
@@ -487,6 +560,115 @@ enforcement_nox <- tibble(
     nox_of(filter(nc, nc_outcome %in% c("d", "f")), "gone"))
 ) %>%
   mutate(pct_of_fleet_nox = round(100 * nox_saved / total_fleet_nox, 2))
+
+
+# --- Layer 1f: data-quality diagnostics (B4, C4, E2) ---
+
+# B4: the same machine recorded at different stages on different visits. A
+# machine may legitimately improve, so a spread of one stage is unremarkable;
+# a spread of three or four is a recording error rather than an upgrade.
+stage_inconsistency <- spine %>%
+  filter(tan_usable, !is.na(initial_stage)) %>%
+  group_by(TAN) %>%
+  summarise(visits = n(), distinct_stages = n_distinct(initial_stage),
+            stage_min = min(initial_stage), stage_max = max(initial_stage),
+            .groups = "drop") %>%
+  filter(visits > 1) %>%
+  mutate(spread = stage_max - stage_min)
+
+stage_inconsistency_summary <- stage_inconsistency %>%
+  count(spread, name = "machines") %>%
+  mutate(share_of_repeat_audited = round(machines / nrow(stage_inconsistency), 3))
+
+# C4: TAN capture begins in 2021, so no removal before then can be traced, and
+# a machine removed recently has had little opportunity to be seen again. Both
+# effects push the measured displacement rate down, making it a lower bound.
+removal_fate_by_year <- spine %>%
+  filter(initial_status == "C", nc_outcome %in% c("d", "e", "f")) %>%
+  group_by(year) %>%
+  summarise(
+    removals = n(),
+    traceable = sum(nc_outcome %in% c("d", "e")),
+    displaced = sum(nc_outcome == "d"),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    displaced_pct = if_else(traceable > 0, round(100 * displaced / traceable, 1),
+                            NA_real_),
+    observation_window_yrs = round(as.numeric(max(spine$audit_date, na.rm = TRUE) -
+                                     as.Date(paste0(year, "-07-01"))) / 365.25, 1)
+  )
+
+# E2: every distinct value of a categorical input must be either mapped or
+# explicitly accounted for. Anything appearing here is silently lost unless
+# it is listed as a deliberate exclusion.
+tabulate_unmapped <- function(values, mapped_test, field) {
+  tibble(field = field, value = as.character(values)) %>%
+    filter(!mapped_test) %>%
+    count(field, value, name = "n") %>%
+    arrange(desc(n))
+}
+unmapped_values <- bind_rows(
+  tabulate_unmapped(spine$`Initial Emissions Stage`,
+                    !is.na(spine$initial_stage), "Initial Emissions Stage"),
+  tabulate_unmapped(spine$`Final Emissions Stage`,
+                    !is.na(spine$final_stage), "Final Emissions Stage"),
+  tabulate_unmapped(spine$`Engine Type`,
+                    spine$`Engine Type` %in% c("Constant", "Variable"), "Engine Type")
+)
+
+# --- Layer 1g: classification sensitivity (A3) ---
+#
+# What changes if generators are assigned to Constant Speed by machine type
+# rather than by the recorded Engine Type. Deliberately a parallel, minimal
+# re-derivation: it re-computes only group, stage, phase and threshold, so the
+# comparison cannot drift from the main pipeline without this block failing.
+
+sensitivity_frame <- function(generators_constant) {
+  spine %>%
+    mutate(
+      eng = if (generators_constant) if_else(is_generator, "Constant", `Engine Type`)
+            else `Engine Type`,
+      sg = case_when(
+        eng == "Constant"                              ~ "Constant_Speed",
+        eng == "Variable" & Zone %in% c("CAZ", "OA") ~ "CAZ_Plus",
+        eng == "Variable" & Zone == "GL"              ~ "Rest_of_London",
+        TRUE ~ NA_character_),
+      thr = case_when(
+        sg == "Constant_Speed" ~ unlist(THRESHOLDS$Constant_Speed)[phase],
+        sg == "CAZ_Plus"       ~ unlist(THRESHOLDS$CAZ_Plus)[phase],
+        sg == "Rest_of_London" ~ unlist(THRESHOLDS$Rest_of_London)[phase],
+        TRUE ~ NA_integer_)
+    ) %>%
+    filter(!is.na(sg), !is.na(initial_stage), initial_status != "X")
+}
+
+classification_sensitivity <- bind_rows(lapply(
+  c(as_recorded = FALSE, generators_constant = TRUE), function(gc) {
+    sensitivity_frame(gc) %>%
+      group_by(subgroup = sg, phase) %>%
+      summarise(n = n(), mean_stage = round(mean(initial_stage), 2),
+                compliance_pct = round(100 * mean(initial_stage >= thr), 1),
+                .groups = "drop") %>%
+      mutate(mode = if (gc) "generators_constant" else "as_recorded")
+  })) %>%
+  select(mode, subgroup, phase, n, mean_stage, compliance_pct) %>%
+  arrange(subgroup, phase, mode)
+
+# Constant Speed mean stage by year under both modes: the clearest view of the
+# artefact, since under "as_recorded" the series cannot rise.
+classification_sensitivity_trend <- bind_rows(lapply(
+  c(as_recorded = FALSE, generators_constant = TRUE), function(gc) {
+    sensitivity_frame(gc) %>%
+      filter(sg == "Constant_Speed") %>%
+      group_by(year) %>%
+      summarise(n = n(), mean_stage = round(mean(initial_stage), 2),
+                pct_stage_v_plus = round(100 * mean(initial_stage >= 6), 1),
+                .groups = "drop") %>%
+      mutate(mode = if (gc) "generators_constant" else "as_recorded")
+  })) %>%
+  select(mode, year, n, mean_stage, pct_stage_v_plus) %>%
+  arrange(year, mode)
 
 # --- Layer 2: EF strata per Machine Group x phase (plus All_NRMM pool) ---
 
@@ -787,6 +969,16 @@ if (nrow(projections) > 0) {
 stopifnot(all(USAGE_TABLE$hours_day_high <= 24),
           all(USAGE_TABLE$hours_day_low > 0))
 
+# 2b-v5. referential (halt): C2 status X voids the outcome but keeps the stage
+stopifnot(all(spine$nc_outcome[spine$initial_status == "X"] %in% OUTCOME_KEYS))
+stopifnot(!any(outcomes$status_X > 0 & rowSums(outcomes[paste0("outcome_", OUTCOME_KEYS)]) >
+                 outcomes$status_C))
+# status X must never enter a compliance rate
+stopifnot(all(abs(outcomes$c_bar - (outcomes$status_A + outcomes$status_B) /
+                    pmax(outcomes$status_A + outcomes$status_B + outcomes$status_C, 1)) < 1e-12))
+stopifnot(nrow(removal_fate_by_year) > 0, nrow(stage_inconsistency) > 0)
+stopifnot(all(c("as_recorded", "generators_constant") %in% classification_sensitivity$mode))
+
 # 2b-v4. referential (halt): new v4 objects are internally consistent
 stopifnot(nrow(arrival_ef) > 0, !any(is.na(arrival_ef$ef_warm)),
           !any(is.na(arrival_ef$ef_cold)))
@@ -812,6 +1004,69 @@ stopifnot(all(unlist(oc_sum) == unlist(op_sum[names(oc_sum)])))
 stopifnot(all(ef_results$ef_env_low  <= ef_results$ef_central + 1e-9),
           all(ef_results$ef_env_high >= ef_results$ef_central - 1e-9))
 stopifnot(all(threshold_schedule$thr %in% 3:6))
+
+# E1: structural implausibility. These are not internal-consistency failures,
+# so nothing above would catch them; they are the signature of a definition
+# rather than the world doing the work. Recorded in the object AND warned, so
+# a reader of the results cannot miss them.
+structural_flags <- bind_rows(
+  # a group with no compliant machines at all in a phase
+  outcomes %>%
+    group_by(subgroup, phase) %>%
+    summarise(compliant = sum(status_A) + sum(status_B),
+              resolvable = sum(status_A) + sum(status_B) + sum(status_C),
+              .groups = "drop") %>%
+    filter(resolvable >= 30, compliant == 0) %>%
+    transmute(check = "zero-compliance group",
+              detail = paste0(subgroup, " phase ", phase, ": 0 of ", resolvable,
+                              " resolvable machines compliant")),
+  # a fitted replacement rate indistinguishable from exactly zero
+  pbar %>%
+    filter(!is.na(p_bar), era == "era2", abs(p_bar) < 0.01) %>%
+    transmute(check = "near-zero fitted replacement rate",
+              detail = paste0(engine, " / ", arm, " era2: p-bar = ",
+                              formatC(p_bar, format = "f", digits = 4))),
+  # a group with no machines above a given stage across the whole record
+  spine %>%
+    filter(!is.na(initial_stage)) %>%
+    group_by(subgroup) %>%
+    summarise(n = n(), max_stage = max(initial_stage), .groups = "drop") %>%
+    filter(n >= 100, max_stage < 6) %>%
+    transmute(check = "group empty above stage",
+              detail = paste0(subgroup, ": ", n, " machines, none above stage ",
+                              max_stage))
+)
+
+# E3: population stability. A cohort that shrinks while the fleet improves is
+# the signature shared by the generator and "Electric" problems: machines are
+# leaving the measured population by getting cleaner.
+population_stability <- spine %>%
+  filter(!is.na(initial_stage), year >= 2019) %>%
+  count(subgroup, year) %>%
+  group_by(subgroup) %>%
+  summarise(first_n = first(n[order(year)]), last_n = last(n[order(year)]),
+            change_pct = round(100 * (last(n[order(year)]) /
+                                      first(n[order(year)]) - 1)), .groups = "drop") %>%
+  mutate(flag = change_pct <= -40)
+
+if (nrow(structural_flags) > 0) {
+  warning("STRUCTURAL IMPLAUSIBILITY (see structural_flags):\n  ",
+          paste(structural_flags$check, "-", structural_flags$detail,
+                collapse = "\n  "))
+}
+if (any(population_stability$flag)) {
+  warning("Population(s) shrinking sharply since 2019, check whether machines ",
+          "are leaving the group by improving: ",
+          paste(population_stability$subgroup[population_stability$flag],
+                collapse = ", "))
+}
+if (nrow(unmapped_values) > 0) {
+  warning(nrow(unmapped_values), " unmapped categorical values are being ",
+          "dropped (see unmapped_values); top: ",
+          paste(utils::head(paste0(unmapped_values$field, "='",
+                                   unmapped_values$value, "' n=",
+                                   unmapped_values$n), 4), collapse = "; "))
+}
 
 # 3. distribution fingerprints (warn)
 thin <- cell_summary %>% filter(n < YEAR_MIN_N, arm != "pooled")
@@ -843,7 +1098,7 @@ print(as.data.frame(pbar %>% mutate(across(where(is.numeric), ~ round(.x, 4)))))
 fmt <- function(x, d = 3) formatC(round(x, d), format = "f", digits = d)
 
 md <- c(
-  "# nrmm_model_v4 — unified model: outcomes, EF, dynamics (260717)",
+  "# nrmm_model_v5 — unified model: outcomes, EF, dynamics (260717)",
   "",
   "One classified spine; three layers. Arms: warm_AT (treatment), cold_CF",
   "(counterfactual). Eras split at 1 Sep 2020. Constrained Markov: replacement",
@@ -923,8 +1178,23 @@ cat("Markdown written:", output_md, "\n")
 
 # --- Save model object and manifest ---
 
-nrmm_model_v4 <- list(
-  schema_version = 4L,
+nrmm_model_v5 <- list(
+  schema_version = 5L,
+  generator_mode = GENERATOR_MODE,
+  provisional = TRUE,
+  provisional_note = paste(
+    "Constant Speed results are provisional: every Stage V generator is",
+    "recorded Engine Type 'Variable', so generators leave the group when they",
+    "improve. Classification query is with the audit team. See",
+    "classification_sensitivity for what changes under the alternative."),
+  stage_inconsistency = stage_inconsistency,
+  stage_inconsistency_summary = stage_inconsistency_summary,
+  removal_fate_by_year = removal_fate_by_year,
+  unmapped_values = unmapped_values,
+  classification_sensitivity = classification_sensitivity,
+  classification_sensitivity_trend = classification_sensitivity_trend,
+  structural_flags = structural_flags,
+  population_stability = population_stability,
   outcomes = outcomes, outcomes_cells = outcomes_cells,
   stage_populations = stage_populations,
   arrival_ef = arrival_ef, removal_fate = removal_fate,
@@ -937,11 +1207,11 @@ nrmm_model_v4 <- list(
   threshold_schedule = threshold_schedule,
   proj_init = proj_init, stage_ef = stage_ef, nox_limit = NOX_LIMIT
 )
-saveRDS(nrmm_model_v4, "intermediate_data/nrmm_model_v4.rds")
+saveRDS(nrmm_model_v5, "intermediate_data/nrmm_model_v5.rds")
 
 manifest_path <- "intermediate_data/manifest.md"
 manifest_row <- paste0(
-  "| Model | nrmm_model_v4 | nrmm_model_v4.rds | list | ",
+  "| Model | nrmm_model_v5 | nrmm_model_v5.rds | list | ",
   nrow(outcomes_cells), " year-cells; ", nrow(arrival_ef), " arrival-EF cells; ",
   nrow(projections), " projection rows | ",
   "Authoritative NRMM model: v3 plus arrival emissions intensity by arm, ",
@@ -955,5 +1225,5 @@ if (file.exists(manifest_path)) {
                "|---|---|---|---|---|---|", manifest_row), manifest_path)
 }
 
-cat("Completion summary: nrmm_model_v4 (list), ", length(nrmm_model_v4),
+cat("Completion summary: nrmm_model_v5 (list), ", length(nrmm_model_v5),
     " elements; spine ", nrow(spine), " records\n", sep = "")
