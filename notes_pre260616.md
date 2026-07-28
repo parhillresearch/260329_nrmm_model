@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical record only, not current.**
+> Superseded by: notes.md (archive section carries what remains relevant).
+> Retained for provenance. Do not cite; figures and definitions here may
+> predate the data-quality corrections of July 2026.
+
 - All WLS fits via lm() with weights argument; extract SE from vcov()
 - Transition matrices must be right-stochastic: rows sum to 1; enforce after every matrix operation
 - Use exact fractional years for all temporal midpoints (see schema.md for phase boundaries)

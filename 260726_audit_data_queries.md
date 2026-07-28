@@ -36,15 +36,7 @@ A similar shape, on smaller numbers. Of 129 crusher records, 15 are "Constant" a
 stage ZE rather than dropped, which is how they should have been treated all along. Left here
 so the trail is complete.*
 
-## 4. The same machine recorded at different stages
-
-Where a machine is audited more than once, I'd expect its stage to stay the same or improve. Of 598 machines audited more than once with a stage recorded, 40 (7%) appear at more than one stage. Most differ by a single stage, but eight differ by two, three differ by three, and two differ by four.
-
-- Where a stage isn't shown clearly on the plate, how is it usually determined?
-- Is there a route for correcting a stage on a later visit if the earlier one turns out to be wrong?
-- Would you expect a machine's recorded stage to be checked against its earlier audits?
-
-## 5. "Uncertified" as an emissions stage
+## 4. "Uncertified" as an emissions stage
 
 Twenty-five records have "Uncertified" in the initial stage field and 26 in the final stage field.
 
@@ -52,31 +44,16 @@ Twenty-five records have "Uncertified" in the initial stage field and 26 in the 
 - Should I treat these as below the lowest stage, or as unknown?
 - Is there a compliance consequence on site for an uncertified engine that I should be reflecting?
 
-## 6. "Pending" and unresolved outcomes
+## 5. Machine Type wording
 
-Twenty-three records show "Pending" as the final machinery compliance, all from 2018 to 2020.
+I've handled the capitalisation variants at my end ("Mewp" and "MEWP" are now the same thing). One question remains: I see "Inappropriate for Audit" on 131 records, and "No NRMM" on 891.
 
-- Does "Pending" mean the case was still open when the data was extracted, or something more specific?
-- Is there a later resolution recorded elsewhere that I could pick up?
-
-## 7. Machine identification numbers (TAN)
-
-I use TANs to follow a machine between sites, which is how I look at what happens to machines removed from site. Usable TANs appear from 2021 onward: none in 2016-2020, 41% in 2021, then 85-90% through to 2024, and 77% in 2025.
-
-- Was TAN capture introduced or mandated at a particular date? Is the earlier absence expected?
-- Is a TAN expected for every machine, or only in certain circumstances?
-- Where one isn't recorded, is that usually because none was displayed, it was unreadable, or it wasn't required at the time?
-- Does the 2025 dip from about 89% to 77% reflect a process change?
-
-## 8. Machine Type wording
-
-`Machine Type` looks like free text, and there are near-duplicates my processing treats as separate categories: "MEWP" (359) alongside "Mewp" (13); "Piling Rig" (392) alongside "Piling rig" (1); "Drilling Rig" (2) alongside "Drilling rig" (1). I also see "Inappropriate for Audit" (131 records across two capitalisations) and "No NRMM" (891).
-
-- Is the field picked from a list, or typed?
 - Should "Inappropriate for Audit" be treated as out of scope, the way I exclude "No NRMM"?
-- Are there other labels you'd expect me to treat as the same thing?
+- Is `Machine Type` picked from a list, or typed? If it's typed, are there other labels you'd expect me to treat as the same thing?
 
 ---
+
+A few other things I noticed I've simply catalogued as known quirks rather than bothering you with: serial numbers only being captured from 2021, a handful of machines recorded at different stages on different visits, and 23 older records left as "Pending". They're written up in my data dictionary and I've allowed for them.
 
 I'm very happy to work to whatever convention you intend — I just want to apply it consistently rather than invent my own. A quick reply on any of these, or a pointer to existing guidance, would be a big help. And if it's easier to talk it through, I'd welcome half an hour whenever suits.
 

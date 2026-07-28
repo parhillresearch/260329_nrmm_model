@@ -1,12 +1,47 @@
 # Schema
 
-version 3 \| May 5 2026
+version 3 \| May 5 2026, annotated 28 July 2026 with observed-data departures (sections 2a and 3aa); see `outputs/260728_data_dictionary.md`
 
 ### 1. Tab delimited Input file: input_data/`audits.txt`
 
 ### 2. Emissions Stage encoding - Stage values and integer encoding\*\*
 
 1-7: I=1, II=2, IIIA=3, IIIB=4, IV=5, V=6, {ZE\|hybrid\|any other} = 7
+
+
+### 2a. Stage encoding as it appears in the data
+
+The encoding above is the intended design. What the audit file actually contains is
+recorded in `outputs/260728_data_dictionary.md`, generated from the file itself. Points
+where the data departs from this schema:
+
+- `"Electric"` appears as a stage value on 31 records. Confirmed by the audit team
+  (28 July 2026) to mean zero emission, so it maps to 7 alongside `ZE`.
+- `"Uncertified"` (25 initial, 26 final) has no agreed encoding and is currently excluded;
+  question open with the audit team.
+- `"Unidentified"` (1,045 initial, 741 final) is genuinely unknown and excluded.
+- Site-level audit states (`Baselining`, `Site Complete`, `No Apparent Works`,
+  `DECLINED AUDIT`) appear in the stage and compliance fields on 1,662 records. These
+  visits made no determination about the machine, so the stage is kept where usable and
+  the compliance outcome is voided (status X).
+- Case typos `iIIB` and `iV` occur; stage strings are normalised before matching.
+
+### 3aa. Machine Group assignment as it behaves in the data
+
+The assignment rule in 3a depends on `Engine Type`, which is not reliable for all machine
+types. Every one of the 218 generators recorded at Stage V carries `Engine Type` =
+"Variable", while Stage IIIA generators audited in the same years are 80% "Constant".
+Generators therefore leave the Constant Speed group at the point they upgrade, which
+makes that group incapable of showing improvement. Crushers show the same pattern on
+smaller numbers. The classification intent is an open question with the audit team; until
+it is answered the model follows the field as recorded and reports the alternative as a
+sensitivity. **Constant Speed results are not to be cited.** See data dictionary facts
+Q1 and Q2.
+
+BCP and P24 are defined in 3a but not implemented in the model. P24 collapses to a single
+group and zone, a structurally different problem from the pre-2025 analysis, so comparison
+across that boundary would require regrouping everything onto a common basis. Consequence:
+all 2025 variable-speed records are dropped and phase C holds 63 machines.
 
 ### 3. Machine Groups; Minimum emissions rating limit by policy era and machine group (used in e-bar calculation)
 

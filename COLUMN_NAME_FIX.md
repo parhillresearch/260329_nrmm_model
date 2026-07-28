@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical record only, not current.**
+> Superseded by: outputs/260728_data_dictionary.md (field-level issues now catalogued there).
+> Retained for provenance. Do not cite; figures and definitions here may
+> predate the data-quality corrections of July 2026.
+
 # Column Name Fixes — tree_analysis_rol_outcome_focused.R
 
 ## Error Encountered

@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical record only, not current.**
+> Superseded by: notes.md decision log and the nrmm_model_v6 taxonomy.
+> Retained for provenance. Do not cite; figures and definitions here may
+> predate the data-quality corrections of July 2026.
+
 # tree_analysis_rol_outcome_focused.R — Item 7 Compliance Fixes
 
 ## Applied Fixes (2026-06-18)

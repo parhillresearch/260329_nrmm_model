@@ -1,3 +1,8 @@
+> **SUPERSEDED — historical record only, not current.**
+> Superseded by: notes.md "State of play" (16 Jun 2026 audit of steps 1-6; conclusions absorbed).
+> Retained for provenance. Do not cite; figures and definitions here may
+> predate the data-quality corrections of July 2026.
+
 # Audit: Existing Work & Overengineering Assessment
 
 **Date:** 16 Jun 2026 \| **Status:** Steps 1–6 executed; code complete, outputs accepted, no execution since 21 May.
