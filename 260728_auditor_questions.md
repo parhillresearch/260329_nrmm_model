@@ -12,13 +12,13 @@ Before I finish, there are four things in the data I can't work out on my own. I
 
 To be clear, I'm not saying anything has been recorded badly. I've found and fixed several mistakes of my own along the way. I just need to know what you meant, so I treat the records the way you intended.
 
-One thing I have already settled: **"Electric"** in the stage box is being read as zero emission.
+For now I am treating anything logged as **Electric** as a **ZE**.
 
 ---
 
 ## Question 1: generators, and the "Engine Type" box
 
-**What I see:** every generator in the data with **Stage V** has "Engine Type" set to **Variable**. Not one says **Constant**. Older generators (Stage IIIA) mostly say **Constant**.
+**What I see:** 218 generators are at **Stage V**. Not one has "Engine Type" set to **Constant** (215 say **Variable**, 3 say **Unidentified**). Older generators at **Stage IIIA** mostly say **Constant**, about 8 in 10.
 
 **Why I'm asking:** the "Engine Type" box decides which group a machine goes into, and each group has a different Stage it has to meet.
 
@@ -79,7 +79,24 @@ Three other things came up. I've sorted them out at my end and I'm not asking yo
 
 - **TAN numbers** only start appearing in the records from 2021. I use them to see if a machine removed from one site turns up on another, so I only look at 2021 onwards.
 - **A few machines** show a different Stage on different visits. It's about 30 machines out of 600, so I've allowed for it.
-- **23 older records** say **Pending** in the final box. I've counted those as unresolved.
+- **23 older records** say **Pending** in the final box. I count those as *not put right*, which may be unfair to a couple of them.
+
+---
+
+## Things I am assuming
+
+These are my own choices, not anything you told me. Tick any that are wrong and I will change them.
+
+- [ ] Anything logged as **Electric** counts as **ZE**.
+- [ ] Records saying **No NRMM** are left out altogether.
+- [ ] **Removed from site** means the machine left that site, not that it was scrapped.
+- [ ] If a **TAN** turns up later at a different site, that is the same machine having moved.
+- [ ] Where the box says **Baselining**, **Site Complete**, **No Apparent Works** or **DECLINED AUDIT**, no judgement was being made about that machine, so I do not count it as a pass or a fail.
+- [ ] **Mewp** and **MEWP** are the same thing, and likewise **Piling rig** and **Piling Rig**.
+- [ ] Where **kW Power** is blank, I use the usual figure for that type of machine. Where it is a range, I use the middle.
+- [ ] When a machine is swapped during an audit, the new one is the newest **Stage** on sale at the time.
+- [ ] I am taking **Engine Type** exactly as recorded, until you tell me otherwise (Questions 1 and 2).
+- [ ] I have left **2025** records out for now, because the zone rules changed.
 
 ---
 
