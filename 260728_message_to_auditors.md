@@ -18,7 +18,7 @@ I've attached an interactive dashboard. It's a single file, so just open it in a
 
 I'm genuinely not assuming either reading is correct. Hybrid, flywheel and flybrid units in your data split 37 "Constant" to 51 "Variable", which looks like a deliberate distinction rather than an accident, so a blanket rule on my side would probably be wrong. The Data queries view shows both readings side by side. Until I hear from you I've left the figures as recorded and flagged the group as provisional, so please treat anything labelled Constant Speed as not yet reliable. Everything else in the dashboard is unaffected.
 
-**A few smaller questions**, all in the attached note: whether "Electric" in the stage field should read as zero-emission (31 machines, and growing each year); what "Uncertified" and "Pending" are intended to mean; whether crushers should ever be constant speed; when TAN capture was introduced, since I use it to follow machines between sites; and whether "Inappropriate for Audit" should be treated as out of scope.
+**A few smaller questions**, all in the attached note (and thank you for confirming that "Electric" means zero emission, which is now reflected): what "Uncertified" and "Pending" are intended to mean; whether crushers should ever be constant speed; when TAN capture was introduced, since I use it to follow machines between sites; and whether "Inappropriate for Audit" should be treated as out of scope.
 
 None of this is a criticism of the recording. In most cases I expect there's a practice or a piece of guidance I simply don't know about, and a short answer from you would save me guessing and quite possibly getting it wrong. I've also fixed a handful of things at my end that were my own doing, so those aren't in the list.
 

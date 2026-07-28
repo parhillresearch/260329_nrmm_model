@@ -30,13 +30,11 @@ A similar shape, on smaller numbers. Of 129 crusher records, 15 are "Constant" a
 - Would you expect any crusher to be constant speed, or is "Variable" right for all of them?
 - If some genuinely are, what would distinguish them on site?
 
-## 3. "Electric" in the emissions stage field
+## 3. "Electric" in the emissions stage field — ANSWERED, thank you
 
-Thirty-one records have "Electric" in the stage field rather than a Roman numeral or "ZE": Battery Packs (13), forklifts (7), pumps, MEWPs, a telehandler, an excavator, a shredder. They appear in 2022 (1), 2023 (2), 2024 (13) and 2025 (15), so they're becoming more common. My processing currently doesn't recognise the value, so these machines drop out of the stage analysis altogether — which is a shame, as they're presumably the cleanest ones on site.
-
-- Should "Electric" be read as zero-emission, equivalent to "ZE"?
-- Is there a distinction you're drawing between "Electric" and "ZE", or are they alternatives for the same thing?
-- For a battery pack or a mains-powered unit with no engine, what would you like recorded in the stage field?
+*Confirmed 28 July 2026: "Electric" means zero emission. These 31 records are now counted as
+stage ZE rather than dropped, which is how they should have been treated all along. Left here
+so the trail is complete.*
 
 ## 4. The same machine recorded at different stages
 

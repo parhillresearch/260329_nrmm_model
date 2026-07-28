@@ -1,12 +1,6 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_model_v6.R
-# Retained so earlier results remain reproducible. See notes.md.
-# =====================================================================
-
-# nrmm_model_v5 — unified NRMM model: one classified data spine, three layers.
+# nrmm_model_v6 — unified NRMM model: one classified data spine, three layers.
 #
 # THIS IS THE AUTHORITATIVE MODEL SCRIPT. Every figure in
 # 260719_nrmm_report.md traces to an object saved here; see the cross-
@@ -46,6 +40,14 @@
 #       improves are the signature shared by the generator and Electric
 #       problems
 #   schema_version = 5
+#
+# v6 change (query answered 28 July 2026):
+#   B1  "Electric" in the stage field is confirmed by the audit team to mean
+#       zero emission, so it now maps to stage 7 alongside "ZE" rather than
+#       being dropped. These are the cleanest machines on site and they are
+#       growing year on year, so dropping them was biasing the fleet
+#       distribution downward in exactly the years it is improving fastest.
+#   schema_version = 6
 #
 # v4 changes (review-readiness pass): three quantities that the report cited
 # but no committed script computed are now derived here, so every reported
@@ -235,7 +237,7 @@ YEAR_MIN_N    <- 20      # minimum year-cell n for trend estimation
 PROJ_YEARS    <- 2025:2030
 PROJ_BASE_YEARS <- c(2023, 2024)   # pooled initial distribution
 
-output_md <- "outputs/nrmm_model_v5.md"
+output_md <- "outputs/nrmm_model_v6.md"
 
 # --- Load input data ---
 
@@ -263,7 +265,9 @@ stage_to_int <- function(x) {
     k %in% c("I", "1") ~ 1L, k %in% c("II", "2") ~ 2L,
     k %in% c("IIIA", "3") ~ 3L, k %in% c("IIIB", "4") ~ 4L,
     k %in% c("IV", "5") ~ 5L, k %in% c("V", "6") ~ 6L,
-    k == "ZE" ~ 7L, TRUE ~ NA_integer_
+    # "Electric" confirmed by the audit team (28 Jul 2026) to mean zero
+    # emission, so it joins "ZE" at stage 7 rather than being dropped.
+    k %in% c("ZE", "ELECTRIC") ~ 7L, TRUE ~ NA_integer_
   )
 }
 
@@ -1104,7 +1108,7 @@ print(as.data.frame(pbar %>% mutate(across(where(is.numeric), ~ round(.x, 4)))))
 fmt <- function(x, d = 3) formatC(round(x, d), format = "f", digits = d)
 
 md <- c(
-  "# nrmm_model_v5 — unified model: outcomes, EF, dynamics (260717)",
+  "# nrmm_model_v6 — unified model: outcomes, EF, dynamics (260717)",
   "",
   "One classified spine; three layers. Arms: warm_AT (treatment), cold_CF",
   "(counterfactual). Eras split at 1 Sep 2020. Constrained Markov: replacement",
@@ -1184,8 +1188,8 @@ cat("Markdown written:", output_md, "\n")
 
 # --- Save model object and manifest ---
 
-nrmm_model_v5 <- list(
-  schema_version = 5L,
+nrmm_model_v6 <- list(
+  schema_version = 6L,
   generator_mode = GENERATOR_MODE,
   provisional = TRUE,
   provisional_note = paste(
@@ -1213,11 +1217,11 @@ nrmm_model_v5 <- list(
   threshold_schedule = threshold_schedule,
   proj_init = proj_init, stage_ef = stage_ef, nox_limit = NOX_LIMIT
 )
-saveRDS(nrmm_model_v5, "intermediate_data/nrmm_model_v5.rds")
+saveRDS(nrmm_model_v6, "intermediate_data/nrmm_model_v6.rds")
 
 manifest_path <- "intermediate_data/manifest.md"
 manifest_row <- paste0(
-  "| Model | nrmm_model_v5 | nrmm_model_v5.rds | list | ",
+  "| Model | nrmm_model_v6 | nrmm_model_v6.rds | list | ",
   nrow(outcomes_cells), " year-cells; ", nrow(arrival_ef), " arrival-EF cells; ",
   nrow(projections), " projection rows | ",
   "Authoritative NRMM model: v3 plus arrival emissions intensity by arm, ",
@@ -1231,5 +1235,5 @@ if (file.exists(manifest_path)) {
                "|---|---|---|---|---|---|", manifest_row), manifest_path)
 }
 
-cat("Completion summary: nrmm_model_v5 (list), ", length(nrmm_model_v5),
+cat("Completion summary: nrmm_model_v6 (list), ", length(nrmm_model_v6),
     " elements; spine ", nrow(spine), " records\n", sep = "")

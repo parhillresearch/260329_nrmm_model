@@ -1,12 +1,6 @@
 #!/usr/bin/env Rscript
 
-# =====================================================================
-# SUPERSEDED - development history only, NOT authoritative.
-# Superseded by: nrmm_dashboard_v6.R
-# Retained so earlier results remain reproducible. See notes.md.
-# =====================================================================
-
-# nrmm_dashboard_v5 — unified dashboard over nrmm_model_v5.rds.
+# nrmm_dashboard_v6 — unified dashboard over nrmm_model_v6.rds.
 #
 # ***** PROVISIONAL BUILD FOR SHARING WITH THE AUDIT TEAM *****
 # Carries a standing banner and a "Data queries" view showing the open
@@ -54,15 +48,15 @@ library(htmlwidgets)
 library(htmltools)
 
 CONTROL_BAR_HEIGHT_PX <- 118
-MODEL_PATH  <- "intermediate_data/nrmm_model_v5.rds"
-OUTPUT_FILE <- "nrmm_dashboard_v5.html"
+MODEL_PATH  <- "intermediate_data/nrmm_model_v6.rds"
+OUTPUT_FILE <- "nrmm_dashboard_v6.html"
 
 # --- Load and check the model object ---
 
 cat("Loading model object...\n")
 model <- readRDS(MODEL_PATH)
-if (is.null(model$schema_version) || model$schema_version != 5L) {
-  stop("Model object schema_version != 5; rebuild with nrmm_model_v5.R")
+if (is.null(model$schema_version) || model$schema_version != 6L) {
+  stop("Model object schema_version != 6; rebuild with nrmm_model_v6.R")
 }
 
 # --- Payload verification (halt on inconsistency) ---
@@ -131,7 +125,7 @@ graph <- visNetwork(init_nodes, init_edges, width = "100%", height = "100%") %>%
                         shakeTowards = "roots") %>%
   visPhysics(solver = "hierarchicalRepulsion",
              hierarchicalRepulsion = list(nodeDistance = 110, avoidOverlap = 1)) %>%
-  visExport(type = "pdf", name = "nrmm_dashboard_v5", label = "Export as PDF")
+  visExport(type = "pdf", name = "nrmm_dashboard_v6", label = "Export as PDF")
 
 viewport_css <- sprintf("
   html, body { margin: 0; padding: 0; height: 100%%; }
@@ -726,7 +720,7 @@ js_code <- "function(el, x, data) {
 
   // ---------- glossary ----------
   var GLOSSARY = [
-    ['Stage (I, II, IIIA, IIIB, IV, V, ZE)', 'The European emissions standard the engine was built to. Stage I is the oldest and dirtiest; V is the newest diesel standard; ZE means zero-emission. The Low Emission Zone works by requiring newer stages over time.'],
+    ['Stage (I, II, IIIA, IIIB, IV, V, ZE)', 'The European emissions standard the engine was built to. Stage I is the oldest and dirtiest; V is the newest diesel standard; ZE means zero-emission (machines recorded as \"Electric\" are counted here). The Low Emission Zone works by requiring newer stages over time.'],
     ['Machine Group', 'Which rule-set a machine falls under: Constant Speed (mainly generators), CAZ+ (central zone and opportunity areas), or Rest of London. Each has its own required stage per period.'],
     ['Registered / warm-engaged', ARM_TIPS.warm],
     ['Unregistered / cold-engaged', ARM_TIPS.cold],
@@ -800,7 +794,7 @@ js_code <- "function(el, x, data) {
       '<div style=\"font-weight:bold;padding:10px 0 4px;\">4. Also on the list</div>' +
       '<ul>' +
       '<li><b>Crushers:</b> 15 records are \"Constant\", all at Stage IIIA; all 76 at IIIB, IV and V are \"Variable\".</li>' +
-      '<li><b>\"Electric\" in the stage field</b> (31 records, growing from 1 in 2022 to 15 in 2025): should this read as zero-emission?</li>' +
+      '<li><b>\"Electric\" in the stage field</b> (31 records): <span style=\"color:#2E7D32;\">answered, thank you, these are zero-emission and now counted as ZE.</span></li>' +
       '<li><b>\"Uncertified\" as a stage</b> (25 records): no approval at all, or approval not confirmed on the day?</li>' +
       '<li><b>\"Pending\" as a final outcome</b> (23 records, 2018-2020): still open at extract, or something more specific?</li>' +
       '<li><b>Same machine, different stage</b> across visits: 30 machines, two of them differing by four stages.</li>' +
