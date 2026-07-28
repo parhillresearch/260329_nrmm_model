@@ -1,3 +1,8 @@
+> **SUPERSEDED — do not send.**
+> merged into 260728_auditor_questions.md, which combines the covering note and the
+> questions into one document with no duplication, written as tick-box choices.
+> Retained as drafting history.
+
 # A few things I'd like to check with you about the audit data
 
 **26 July 2026 | NRMM LEZ data analysis**

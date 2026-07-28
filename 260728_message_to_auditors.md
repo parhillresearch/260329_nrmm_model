@@ -1,3 +1,8 @@
+> **SUPERSEDED — do not send.**
+> merged into 260728_auditor_questions.md, which combines the covering note and the
+> questions into one document with no duplication, written as tick-box choices.
+> Retained as drafting history.
+
 # Message to accompany the dashboard and queries
 
 *Draft covering note. Attachments: `nrmm_dashboard_v5.html` (open in any browser, nothing to install) and `260726_audit_data_queries.md`.*

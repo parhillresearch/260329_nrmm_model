@@ -21,7 +21,7 @@
 | `plans/coding_rules.md` | Verification criteria and coding conventions | Canonical for code standards |
 | `outputs/nrmm_model_v6.md` | Current results tables | Regenerated per model run |
 | `260719_nrmm_report.md` | Findings written for policy staff | **Frozen**, states a generator conclusion that is probably backwards |
-| `260726_audit_data_queries.md` | Open questions for the audit team | 4 open, 1 answered |
+| `260728_auditor_questions.md` | Open questions for the audit team, as tick-box choices | **The one to send.** 4 open, 1 answered |
 | `260726_code_fix_checklist.md` | Code issues and their status | 14 done, 4 blocked |
 | `260726_capture_issues_memo.md` | Impact assessment, and what is safe to share | Current |
 | `intermediate_data/manifest.md` | Saved objects | Appended per run |
@@ -172,6 +172,7 @@ All items below are superseded by `nrmm_model_v1.R`; do not use in new work.
 
 ## Decision log
 
+- **260728 (final) - auditor documents merged and simplified.** The covering note and the query note are combined into a single `260728_auditor_questions.md` with the duplication removed. Rewritten for a busy, non-analytical audience who did not ask to have their data scrutinised: four questions, each with tick-box answers, 692 words, mean sentence length 12 words, and no vocabulary beyond the field names and values that appear in the audit file itself. The three catalogued defects are listed under "nothing needed from you" so the auditors can see they were spotted without being asked to act. Predecessors marked superseded.
 - **260728 (later still) - documentation reconciled; data dictionary created.** A check of whether the work was properly recorded found the decisions and methods well captured but **no data dictionary at all**, which is precisely the artefact whose absence let three classification errors run through four model versions. Created `260728_data_dictionary.R`, generating `outputs/260728_data_dictionary.md`: every field's role and completeness, every distinct value of every categorical field with how the model treats it, and all 13 data-quality facts with their status and handling. Written as a generator so it cannot drift from the data.
   - **`plans/schema.md` reconciled.** It previously recorded none of what we had learned: no mention of "Electric", "Baselining" or "Uncertified", and one passing mention of generators. Added sections 2a (stage encoding as it appears in the data) and 3aa (Machine Group assignment as it behaves, including the generator artefact and why P24 is out of scope).
   - **Items 5-7 reclassified as catalogued bad data** rather than questions, per direction: TAN capture starting 2021 (Q5), the same machine recorded at different stages (Q6), and "Pending" outcomes (Q7). All three are worked around and reported rather than asked about. The auditor query note is down to four open questions.
