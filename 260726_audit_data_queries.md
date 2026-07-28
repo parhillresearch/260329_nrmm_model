@@ -35,9 +35,9 @@ A similar shape, on smaller numbers. Of 129 crusher records, 15 are "Constant" a
 - Would you expect any crusher to be constant speed, or is "Variable" right for all of them?
 - If some genuinely are, what would distinguish them on site?
 
-## 3. "Electric" in the emissions stage field — ANSWERED, thank you
+## 3. "Electric" in the emissions stage field — RESOLVED INTERNALLY, not asked
 
-*Confirmed 28 July 2026: "Electric" means zero emission. These 31 records are now counted as
+*Resolved internally by the project lead, 28 July 2026: "Electric" means zero emission. Not asked of the auditors. These 31 records are now counted as
 stage ZE rather than dropped, which is how they should have been treated all along. Left here
 so the trail is complete.*
 

@@ -12,7 +12,7 @@ Before I finish, there are four things in the data I can't work out on my own. I
 
 To be clear, I'm not saying anything has been recorded badly. I've found and fixed several mistakes of my own along the way. I just need to know what you meant, so I treat the records the way you intended.
 
-Thanks also for confirming that **"Electric"** in the stage box means zero emission. That one's sorted.
+One thing I have already settled: **"Electric"** in the stage box is being read as zero emission.
 
 ---
 

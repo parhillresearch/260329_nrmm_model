@@ -42,7 +42,7 @@
 #   schema_version = 5
 #
 # v6 change (query answered 28 July 2026):
-#   B1  "Electric" in the stage field is confirmed by the audit team to mean
+#   B1  "Electric" in the stage field is confirmed by the project lead to mean
 #       zero emission, so it now maps to stage 7 alongside "ZE" rather than
 #       being dropped. These are the cleanest machines on site and they are
 #       growing year on year, so dropping them was biasing the fleet
@@ -265,7 +265,7 @@ stage_to_int <- function(x) {
     k %in% c("I", "1") ~ 1L, k %in% c("II", "2") ~ 2L,
     k %in% c("IIIA", "3") ~ 3L, k %in% c("IIIB", "4") ~ 4L,
     k %in% c("IV", "5") ~ 5L, k %in% c("V", "6") ~ 6L,
-    # "Electric" confirmed by the audit team (28 Jul 2026) to mean zero
+    # "Electric" confirmed by the project lead (28 Jul 2026) to mean zero
     # emission, so it joins "ZE" at stage 7 rather than being dropped.
     k %in% c("ZE", "ELECTRIC") ~ 7L, TRUE ~ NA_integer_
   )

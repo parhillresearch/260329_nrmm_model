@@ -83,7 +83,7 @@ QUALITY_FACTS <- tribble(
   "Same handling as Q1; one answer resolves both.",
 
   "Q3", "Initial/Final Emissions Stage", "RESOLVED",
-  "'Electric' appears as a stage value on 31 records (Battery Packs, forklifts, pumps, MEWPs), growing from 1 in 2022 to 15 in 2025. Audit team confirmed 28 July 2026 that this means zero emission.",
+  "'Electric' appears as a stage value on 31 records (Battery Packs, forklifts, pumps, MEWPs), growing from 1 in 2022 to 15 in 2025. Confirmed by the project lead 28 July 2026 to mean zero emission; not referred to the auditors.",
   "Mapped to stage 7 alongside 'ZE' from model v6. Previously dropped, which removed the cleanest machines from the distribution in the years it is improving fastest.",
 
   "Q4", "Initial/Final Machinery Compliance", "RESOLVED",

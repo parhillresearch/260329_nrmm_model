@@ -6,7 +6,7 @@
 > `nrmm_dashboard_v5.R`.** Rows below marked DONE. The 5 blocked items remain open pending
 > the audit team's response. Superseded: `nrmm_model_v4/v5.R`, `nrmm_dashboard_v4/v5.R`.
 >
-> **28 July, second update:** B1 answered by the audit team ("Electric" = zero emission) and
+> **28 July, second update:** B1 resolved internally by the project lead ("Electric" = zero emission) and
 > implemented in `nrmm_model_v6.R` / `nrmm_dashboard_v6.R`. **4 items now blocked**, all on the
 > engine-type classification question and three smaller field-meaning questions.
 
@@ -27,7 +27,7 @@ Ordered by impact on published figures. "Blocked" means the fix depends on an au
 
 | # | Issue | Where | Impact | Status |
 |---|---|---|---|---|
-| B1 | `"Electric"` (31 records, growing: 1 in 2022 to 15 in 2025) maps to NA and drops out. Schema treats zero-emission as stage 7. | `stage_to_int()` | Systematically removes the cleanest machines, concentrated in recent years — same failure mode as A1 | **DONE (v6)** — audit team confirmed 28 Jul that Electric = zero emission; now mapped to stage 7 |
+| B1 | `"Electric"` (31 records, growing: 1 in 2022 to 15 in 2025) maps to NA and drops out. Schema treats zero-emission as stage 7. | `stage_to_int()` | Systematically removes the cleanest machines, concentrated in recent years — same failure mode as A1 | **DONE (v6)** — project lead confirmed 28 Jul that Electric = zero emission; now mapped to stage 7 |
 | B2 | Case typos `"iIIB"` (1) and `"iV"` (3) map to NA | `stage_to_int()` | 4 records | Ready — normalise case before matching — **DONE (v5)** |
 | B3 | `"Uncertified"` (25 initial, 26 final) maps to NA with no explicit handling or count | `stage_to_int()` | Silent exclusion | **Blocked** — now a question to auditors (query note §5) |
 | B4 | Same machine recorded at different stages across visits: 40 of 598 repeat-audited machines (7%), 5 of them differing by 3-4 stages | not currently detected | Undermines stage reliability; already known to be ~1% symmetric noise at record level | Ready — add a detection report, flag implausible spreads — **DONE (v5)** |
