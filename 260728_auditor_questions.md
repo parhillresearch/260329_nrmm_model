@@ -1,4 +1,4 @@
-# Four quick questions about the audit data
+# Five quick questions about the audit data
 
 **Should take about two minutes. Just tick a box for each one.**
 
@@ -73,6 +73,23 @@ For now I am treating anything logged as **Electric** as a **ZE**.
 
 ---
 
+## Question 5: "Baselining"
+
+**What I see:** 710 records say **Baselining** in the compliance box, where I would normally see Compliant or Non-compliant. They only appear in 2024 (254) and 2025 (456), never before.
+
+**What is a Baselining visit?**
+
+- [ ] **A.** A first visit to a new site, to record what is there before the rules are applied.
+- [ ] **B.** A survey of machines that are outside the scheme, for information only.
+- [ ] **C.** A new way of recording something we were already doing before 2024.
+- [ ] **D.** Something else: `________________________________`
+
+**And should these machines count in the compliance figures?**
+
+- [ ] Yes, count them  - [ ] No, leave them out
+
+---
+
 ## Nothing needed from you on these
 
 Three other things came up. I've sorted them out at my end and I'm not asking you to do anything about them. Listing them only so you know I've spotted them:
@@ -80,6 +97,7 @@ Three other things came up. I've sorted them out at my end and I'm not asking yo
 - **TAN numbers** only start appearing in the records from 2021. I use them to see if a machine removed from one site turns up on another, so I only look at 2021 onwards.
 - **A few machines** show a different Stage on different visits. It's about 30 machines out of 600, so I've allowed for it.
 - **23 older records** say **Pending** in the final box. I count those as *not put right*, which may be unfair to a couple of them.
+- **952 visits** ended as **Site Complete**, **No Apparent Works** or **DECLINED AUDIT**, so no machine was actually assessed. I don't count those as passes or failures. They do look worth counting in their own right, as a measure of visits that didn't get anywhere, so I plan to report them separately. They peaked in 2020 and 2021 (274 and 257) and again in 2025 (187).
 
 ---
 
@@ -87,12 +105,10 @@ Three other things came up. I've sorted them out at my end and I'm not asking yo
 
 These are my own choices, not anything you told me. Tick any that are wrong and I will change them.
 
-- [ ] Anything logged as **Electric** counts as **ZE**.
 - [ ] Records saying **No NRMM** are left out altogether.
 - [ ] **Removed from site** means the machine left that site, not that it was scrapped.
 - [ ] If a **TAN** turns up later at a different site, that is the same machine having moved.
-- [ ] Where the box says **Baselining**, **Site Complete**, **No Apparent Works** or **DECLINED AUDIT**, no judgement was being made about that machine, so I do not count it as a pass or a fail.
-- [ ] **Mewp** and **MEWP** are the same thing, and likewise **Piling rig** and **Piling Rig**.
+- [ ] Where the box says **Site Complete**, **No Apparent Works** or **DECLINED AUDIT**, no machine was assessed, so I count it as neither a pass nor a fail.
 - [ ] Where **kW Power** is blank, I use the usual figure for that type of machine. Where it is a range, I use the middle.
 - [ ] When a machine is swapped during an audit, the new one is the newest **Stage** on sale at the time.
 - [ ] I am taking **Engine Type** exactly as recorded, until you tell me otherwise (Questions 1 and 2).
