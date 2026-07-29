@@ -122,6 +122,10 @@ QUALITY_FACTS <- tribble(
   "Zone is unusable on all 2025 records. This is expected rather than a defect: those machines fall under the post-2024 P24 group, which is a single zone and a structurally different problem.",
   "Catalogued. P24 is not implemented, so the 2025 variable-speed cohort is dropped and phase C holds 63 machines. Backlog item: comparison across the discontinuity would require regrouping everything onto a common basis.",
 
+  "Q14", "TAN / Engine Type / Initial Emissions Stage / kW Power", "OPEN",
+  "Tested whether missing values can be filled from another audit of the same machine, matched on TAN. Recovery is small because the gaps and the identifier barely overlap: of 4,331 records missing Engine Type only 227 carry a usable TAN and 72 are fillable; of 3,069 missing a stage, 209 carry a TAN and 138 are fillable; of 2,807 missing kW, 255 carry a TAN and 196 are fillable. Almost all missing data predates 2021, when TAN capture begins. Critically it does NOT help the generator question: of 47 generators missing Engine Type that carry a usable TAN, none has the field recorded on any other visit. Where fills are available they often conflict: 161 of 196 kW fills and 35 of 138 stage fills give different values for the same TAN, so either TANs are not unique to a machine or these fields are estimated rather than read.",
+  "Not implemented, on instruction. The conflict rate is itself a finding and is now Question 6 to the auditors: whether a TAN belongs to one machine for life, and whether copying details between visits of the same TAN is safe. If it is, roughly 175 clean fills are available for Engine Type and Stage; kW is not worth attempting.",
+
   "Q13", "kW Power", "BAD DATA",
   "Missing or non-numeric on 11-39% of records depending on year, worst in the early years. Some values are ranges rather than numbers.",
   "Ranges are read as their midpoint; the rest are imputed from the machine-type median. Affects the power band and therefore the emission limit applied, and the emissions-intensity weights."

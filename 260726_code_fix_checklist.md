@@ -7,7 +7,7 @@
 > the audit team's response. Superseded: `nrmm_model_v4/v5.R`, `nrmm_dashboard_v4/v5.R`.
 >
 > **28 July, second update:** B1 resolved internally by the project lead ("Electric" = zero emission) and
-> implemented in `nrmm_model_v6.R` / `nrmm_dashboard_v6.R`. **5 items now blocked**, all on the
+> implemented in `nrmm_model_v6.R` / `nrmm_dashboard_v6.R`. **6 items now blocked**, all on the
 > engine-type classification question and three smaller field-meaning questions.
 
 Ordered by impact on published figures. "Blocked" means the fix depends on an auditor answer (see `260726_audit_data_queries.md`); "Ready" means it can be done now without further input.
@@ -42,6 +42,7 @@ Ordered by impact on published figures. "Blocked" means the fix depends on an au
 | C4 | TAN capture begins 2021; all 345 pre-2021 removals are untraceable by construction, and recent removals are right-censored (displacement 62% for 2021 removals falling to 45% for 2025) | `removal_fate`, report | Reported 55.9% is a blend across observation windows and is a lower bound | Ready — restrict to the measurable window, report by removal year, state censoring — **DONE (v5)** |
 | C5 | Wasted visits (Site Complete, No Apparent Works, DECLINED AUDIT: 952 records) are currently just excluded. Worth reporting as a metric in their own right: visits that assessed no machine. Peaks 2020-21 (274, 257) and 2025 (187). | new object | None on current figures; adds an operational measure | Ready — not yet built |
 | C6 | `Baselining` (710 records, 2024-25 only) is treated as status X alongside the other site-level states, but it appears to be a distinct and new process | `initial_status` | 710 records, all recent | **Blocked** — Question 5 to auditors |
+| C7 | Gap-filling from another audit of the same TAN: 72 Engine Type, 138 Stage, 196 kW records are fillable, but 161 of the kW fills and 35 of the stage fills conflict. Does not help the generator question (0 of 47 recoverable). | new step | Up to ~175 clean fills for Engine Type and Stage | **Blocked** — Question 6 to auditors; not to be built meanwhile |
 
 ## D. Processing defects (ours, not the data's)
 
